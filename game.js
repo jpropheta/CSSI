@@ -56,7 +56,6 @@ let attackers = [];
 let playerBullets = [];
 let attackerBullets = [];
 let protectionBlocks = [];
-let score = 0; // Initialize score
 
 const attackerCharacters = ["(͡ ° ͜ʖ ͡ °)", "( ͡° ᴥ ͡°)﻿", "•͡˘㇁•͡˘", "•`_´•", "(‿|‿)", "ƪ(ړײ)‎ƪ​​", "( ✜︵✜ )", "¯\\_(ツ)_/¯"];
 const spacecraftCharacter = "¯\\_(ツ)_/¯";
@@ -94,7 +93,7 @@ function createAttackerBullet(attackerX, attackerY) {
 function moveAttackerBullets() {
     for (let i = 0; i < attackerBullets.length; i++) {
         attackerBullets[i].y += bulletSpeed;
-        
+
         if (pointInRectangle(attackerBullets[i].x, attackerBullets[i].y, playerX, playerY, playerWidth, playerHeight)) {
             attackerBullets.splice(i, 1);
             i--;
@@ -107,7 +106,7 @@ function moveAttackerBullets() {
             });
             return;
         }
-        
+
         if (attackerBullets[i].y > canvas.height) {
             attackerBullets.splice(i, 1);
             i--;
@@ -169,6 +168,19 @@ function moveAttackers() {
             }
         }
     }
+    if (shouldMoveDownAttackers) {
+        for (let c = 0; c < attackerColumnCount; c++) {
+            for (let r = 0; r < attackerRowCount; r++) {
+                const attacker = attackers[c][r];
+                attacker.y += attackerSpacing;
+            }
+        }
+        attackersDirection = -attackersDirection;
+        shouldMoveDownAttackers = false;
+    }
+}
+
+
 
 
     if (shouldMoveDownAttackers) {
@@ -259,7 +271,6 @@ function draw() {
         drawAttackerBullets();
         moveAttackers();
         movePlayerBullets();
-        drawScore();
         moveAttackerBullets();
         attackersShoot();
         requestAnimationFrame(draw);
@@ -300,12 +311,6 @@ document.addEventListener("keydown", (e) => {
 function movePlayerBullets() {
     if (bulletFired) {
         bulletY -= bulletSpeed;
-
-        // Check if the bullet goes off the top of the screen
-        if (bulletY + bulletHeight < 0) { // Check bullet's position considering its height
-            bulletFired = false;
-        }
-
         // Collision with protection blocks
         for (let c = 0; c < protectionBlockColumnCount; c++) {
             for (let r = 0; r < protectionBlockRowCount; r++) {
@@ -314,27 +319,16 @@ function movePlayerBullets() {
                     if (pointInRectangle(bulletX, bulletY, c * (protectionBlockWidth + protectionBlockSpacing) + protectionBlockSpacing, r * (protectionBlockHeight + protectionBlockSpacing) + canvas.height - 100, protectionBlockWidth, protectionBlockHeight)) {
                         bulletFired = false;
                         block.strength--;
-                        break; // No need to continue checking other blocks
+                        break;
+                                    if (bulletY + bulletHeight < 0) { // Check bullet's position considering its height
+                                        bulletFired = false;
+                                    }
+
+
                     }
                 }
             }
         }
-
-        // Collision with attackers
-        for (let c = 0; c < attackerColumnCount; c++) {
-            for (let r = 0; r < attackerRowCount; r++) {
-                const attacker = attackers[c][r];
-                if (attacker.alive && pointInRectangle(bulletX, bulletY, attacker.x, attacker.y, attackerWidth, attackerHeight)) {
-                    attacker.alive = false; // mark the attacker as not alive
-                    bulletFired = false; // remove the bullet because it hit the attacker
-                    score += 100; // increase score by 100 for each hit
-                    break; // exit the loop early as the bullet is destroyed after hitting
-                            }
-                        }
-                    }
-                }
-            }
-
 
         // Check collision with attackers
         for (let c = 0; c < attackerColumnCount; c++) {
@@ -353,7 +347,7 @@ function movePlayerBullets() {
             bulletFired = false;
         }
     }
-
+}
 
 
 
@@ -382,5 +376,3 @@ for (let c = 0; c < attackerColumnCount; c++) {
 
 // Initialize the game
 startGame();
-
-
