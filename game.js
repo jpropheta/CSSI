@@ -353,7 +353,7 @@ function movePlayerBullets() {
             bulletFired = false;
         }
     }
-}
+
 
 
 
