@@ -29,8 +29,8 @@ const attackerHeight = 30;
 const attackerRowCount = 5;
 const playerWidth = 40;
 const playerHeight = 20;
-const playerSpeed = 25;
-const bulletSpeed = 7;
+const player = 25;
+const bullet = 7;
 const bulletWidth = 3;
 const bulletHeight = 10;
 const attackerFireRate = 0.10;
@@ -338,7 +338,7 @@ document.addEventListener("keydown", (e) => {
         case " ":
             if (canShoot) { // Check if spacecraft can shoot
 
-                playLaserSound();
+                //playLaserSound();
                 playerBullets.push({ 
                     x: playerX + playerWidth / 2 - bulletWidth / 2, 
                     y: playerY - bulletHeight, 
