@@ -337,11 +337,14 @@ document.addEventListener("keydown", (e) => {
             break;
         case " ":
             if (canShoot) { // Check if spacecraft can shoot
+
+                playLaserSound();
                 playerBullets.push({ 
                     x: playerX + playerWidth / 2 - bulletWidth / 2, 
                     y: playerY - bulletHeight, 
                     width: bulletWidth, 
                     height: bulletHeight 
+                  
                 });
                 canShoot = false; // Disable shooting until a bullet goes out of bounds or hits an enemy
             }
@@ -391,6 +394,33 @@ function movePlayerBullets() {
     }
 }
 
+function playLaserSound() {
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+
+    // Set the oscillator type to "sawtooth" for a retro laser sound
+    oscillator.type = 'sawtooth';
+
+    // Set the frequency (pitch) of the oscillator for the laser sound
+    oscillator.frequency.setValueAtTime(880, audioContext.currentTime); // Adjust the frequency as needed
+
+    // Set the gain (volume) envelope for the laser sound
+    const attackTime = 0.01; // Attack time in seconds
+    const releaseTime = 0.1; // Release time in seconds
+
+    gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+    gainNode.gain.linearRampToValueAtTime(1, audioContext.currentTime + attackTime);
+    gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + releaseTime);
+
+    oscillator.start();
+
+    // Stop the oscillator after the release time to create the laser sound
+    oscillator.stop(audioContext.currentTime + releaseTime);
+}
 
 
 
