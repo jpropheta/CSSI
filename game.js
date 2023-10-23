@@ -169,19 +169,6 @@ function moveAttackers() {
             }
         }
     }
-    if (shouldMoveDownAttackers) {
-        for (let c = 0; c < attackerColumnCount; c++) {
-            for (let r = 0; r < attackerRowCount; r++) {
-                const attacker = attackers[c][r];
-                attacker.y += attackerSpacing;
-            }
-        }
-        attackersDirection = -attackersDirection;
-        shouldMoveDownAttackers = false;
-    }
-}
-
-
 
 
     if (shouldMoveDownAttackers) {
@@ -342,11 +329,11 @@ function movePlayerBullets() {
                     bulletFired = false; // remove the bullet because it hit the attacker
                     score += 100; // increase score by 100 for each hit
                     break; // exit the loop early as the bullet is destroyed after hitting
+                            }
+                        }
+                    }
                 }
             }
-        }
-    }
-}
 
 
         // Check collision with attackers
