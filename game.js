@@ -59,7 +59,10 @@ let bulletsFired = 0;
 let canShoot = true;
 
 
+let isGamePaused = false;
+let pauseStartTime = 0;
 
+let playerHit = false;
 
 
 
@@ -93,21 +96,39 @@ function createAttackerBullet(attackerX, attackerY) {
 }
 
 function moveAttackerBullets() {
+
+
+    if (isGamePaused) {
+        const pauseEndTime = performance.now();
+        const pauseDuration = pauseEndTime - pauseStartTime;
+        if (pauseDuration >= 10) { // Resume the game after 1 second
+            isGamePaused = false;
+            pauseStartTime = 0;
+        }
+        return;
+    }
+
+
     for (let i = 0; i < attackerBullets.length; i++) {
         attackerBullets[i].y += bulletSpeed;
 
-        if (pointInRectangle(attackerBullets[i].x, attackerBullets[i].y, playerX, playerY, playerWidth, playerHeight)) {
-            attackerBullets.splice(i, 1);
-            i--;
-            lives--;
-            showBoomAnimation(playerX, playerY, () => {
-                if (lives <= 0) {
-                    alert("Game Over!");
-                    document.location.reload();
-                }
-            });
-            return;
+
+
+
+if (pointInRectangle(attackerBullets[i].x, attackerBullets[i].y, playerX, playerY, playerWidth, playerHeight)) {
+    attackerBullets.splice(i, 1);
+    i--;
+    lives--;
+    playerHit = true; // Set playerHit to true when the spacecraft is hit
+    showBoomAnimation(playerX, playerY, () => {
+        if (lives <= 0) {
+            alert("Game Over!");
+            document.location.reload();
         }
+    });
+    return;
+}
+
 
         if (attackerBullets[i].y > canvas.height) {
             attackerBullets.splice(i, 1);
@@ -274,7 +295,7 @@ function startGame() {
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    if(allImagesAreLoaded(images)) { 
+    if (allImagesAreLoaded(images)) {
         drawAttackers(ctx, attackers, images);
         drawPlayer();
         drawPlayerBullet();
@@ -285,9 +306,19 @@ function draw() {
         attackersShoot();
         //drawProtectionBlocks(); // Ensure protection blocks are drawn in every frame
         drawScore(); // Draw the current score
-        requestAnimationFrame(draw);
+
+        if (playerHit) {
+            // Pause the game for 1 second (1000 milliseconds)
+            setTimeout(() => {
+                playerHit = false; // Reset playerHit to false
+                requestAnimationFrame(draw); // Resume the game loop
+            }, 1000);
+        } else {
+            requestAnimationFrame(draw);
+        }
     }
 }
+
 
 
 
@@ -347,6 +378,11 @@ function movePlayerBullets() {
                         i--; // Decrement i since we removed an element from the array
                         score += 100; // Increase the score
                         canShoot = true; // Enable shooting since the bullet hit an enemy
+                        
+                        // Pause the game for 1 second
+                        isGamePaused = true;
+                        pauseStartTime = performance.now();
+
                         break; // No need to check other attackers since bullet is destroyed
                     }
                 }
@@ -354,6 +390,7 @@ function movePlayerBullets() {
         }
     }
 }
+
 
 
 
