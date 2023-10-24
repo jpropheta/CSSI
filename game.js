@@ -1,53 +1,53 @@
-
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
-const attackerSpacing = 50;  // Adjusted from 40 to 10
-const attackerSpeed = 7; // You can adjust this value to your liking
+
+// Adjusted these constants for spacing and speed
+const attackerSpacing = 10;
+const attackerSpeed = 5;
+
 let spacecraftImage = new Image();
-spacecraftImage.src = 'space.png'; 
-canvas.width = 1800; // Set the canvas width
-canvas.height = 1600; // Set the canvas height
+spacecraftImage.src = 'space.png';
 
+// Set canvas dimensions
+canvas.width = 800;
+canvas.height = 600;
 
-let images = []; // array to hold the image objects
+let images = [];
+
+// Load attacker images
 for (let i = 0; i < 15; i++) {
     images[i] = new Image();
-    images[i].src = `act${i}.png`; // change to actual path
+    images[i].src = `act${i}.png`; // Change to the actual path
     images[i].onload = function() {
         // You might keep track of how many images have loaded here,
         // and only start the game/drawing loop once all have loaded.
     };
 }
 
-
-// Settings and constants
+// Game Constants
 const attackerColumnCount = 5;
 const attackerWidth = 40;
 const attackerHeight = 30;
 
-
-const attackerRowCount = 5;
+const attackerRowCount = 3; // Reduced from 5 for simplicity
 const playerWidth = 40;
 const playerHeight = 20;
-const playerSpeed = 25;
+const playerSpeed = 5; // Adjusted speed
+
 const bulletSpeed = 7;
 const bulletWidth = 3;
 const bulletHeight = 10;
 const attackerFireRate = 0.10;
 const maxAttackerBullets = 5;
 
-
-
-// Game variables
 let shouldMoveDownAttackers = false;
 let playerX = (canvas.width - playerWidth) / 2;
-let playerY = canvas.height - playerHeight;  // 'let' instead of 'const'
-playerY -= 30;  // Adjust this value to move the player up by the desired amount.
+let playerY = canvas.height - playerHeight;
+playerY -= 30; // Adjusted to move the player up by 30 units
 
 let bulletX = playerX + playerWidth / 2 - bulletWidth / 2;
 let bulletY = playerY;
 let bulletFired = false;
-
 
 let attackersDirection = 1;
 let moveDown = false;
@@ -58,21 +58,13 @@ let attackerBulletCooldown = 0;
 let bulletsFired = 0;
 let canShoot = true;
 
-
 let isGamePaused = false;
 let pauseStartTime = 0;
-
 let playerHit = false;
-
-
 
 let playerBullets = [];
 let attackerBullets = [];
 let protectionBlocks = [];
-
-const attackerCharacters = [" ? "];
-const spacecraftCharacter = "¯\\_(ツ)_/¯";
-
 
 const protectionBlockWidth = 40;
 const protectionBlockHeight = 20;
@@ -87,17 +79,13 @@ for (let c = 0; c < protectionBlockColumnCount; c++) {
     }
 }
 
-
 let score = 0; // Initialize score
-
 
 function createAttackerBullet(attackerX, attackerY) {
     attackerBullets.push({ x: attackerX + attackerWidth / 2, y: attackerY + attackerHeight, width: 3, height: 10 });
 }
 
 function moveAttackerBullets() {
-
-
     if (isGamePaused) {
         const pauseEndTime = performance.now();
         const pauseDuration = pauseEndTime - pauseStartTime;
@@ -108,27 +96,22 @@ function moveAttackerBullets() {
         return;
     }
 
-
     for (let i = 0; i < attackerBullets.length; i++) {
         attackerBullets[i].y += bulletSpeed;
 
-
-
-
-if (pointInRectangle(attackerBullets[i].x, attackerBullets[i].y, playerX, playerY, playerWidth, playerHeight)) {
-    attackerBullets.splice(i, 1);
-    i--;
-    lives--;
-    playerHit = true; // Set playerHit to true when the spacecraft is hit
-    showBoomAnimation(playerX, playerY, () => {
-        if (lives <= 0) {
-            alert("Game Over!");
-            document.location.reload();
+        if (pointInRectangle(attackerBullets[i].x, attackerBullets[i].y, playerX, playerY, playerWidth, playerHeight)) {
+            attackerBullets.splice(i, 1);
+            i--;
+            lives--;
+            playerHit = true; // Set playerHit to true when the spacecraft is hit
+            showBoomAnimation(playerX, playerY, () => {
+                if (lives <= 0) {
+                    alert("Game Over!");
+                    document.location.reload();
+                }
+            });
+            return;
         }
-    });
-    return;
-}
-
 
         if (attackerBullets[i].y > canvas.height) {
             attackerBullets.splice(i, 1);
@@ -137,8 +120,6 @@ if (pointInRectangle(attackerBullets[i].x, attackerBullets[i].y, playerX, player
     }
 }
 
-
-
 function drawProtectionBlocks() {
     for (let c = 0; c < protectionBlockColumnCount; c++) {
         for (let r = 0; r < protectionBlockRowCount; r++) {
@@ -146,18 +127,15 @@ function drawProtectionBlocks() {
             if (block.strength > 0) {
                 ctx.fillStyle = `rgb(${255 - block.strength * 40}, ${255 - block.strength * 40}, ${255 - block.strength * 40})`;
                 ctx.fillRect(
-                    c * (protectionBlockWidth + protectionBlockSpacing) + protectionBlockSpacing, 
-                    canvas.height - 100 + r * protectionBlockHeight + r * protectionBlockSpacing, 
-                    protectionBlockWidth, 
+                    c * (protectionBlockWidth + protectionBlockSpacing) + protectionBlockSpacing,
+                    canvas.height - 100 + r * protectionBlockHeight + r * protectionBlockSpacing,
+                    protectionBlockWidth,
                     protectionBlockHeight
                 );
             }
         }
     }
 }
-
-
-
 
 function allImagesAreLoaded(images) {
     return images.every(img => img.complete);
@@ -168,7 +146,6 @@ function drawScore() {
     ctx.fillStyle = "#FFFFFF";
     ctx.fillText("Score: " + score, 10, 25); // Change coordinates as you see fit
 }
-
 
 function drawAttackerBullets() {
     ctx.fillStyle = "white";
@@ -212,12 +189,9 @@ function moveAttackers() {
     }
 }
 
-
 document.addEventListener("keyup", (e) => {
     // TODO: Handle keyup events if necessary
 });
-
-// ... [previous code declarations and functions here]
 
 function pointInRectangle(px, py, rx, ry, rw, rh) {
     return (px > rx && px < rx + rw && py > ry && py < ry + rh);
@@ -257,7 +231,6 @@ function drawPlayer() {
     ctx.drawImage(spacecraftImage, playerX, playerY, playerWidth, playerHeight);
 }
 
-
 function drawPlayerBullet() {
     ctx.fillStyle = "white";
     for (let i = 0; i < playerBullets.length; i++) {
@@ -266,7 +239,6 @@ function drawPlayerBullet() {
     }
 }
 
-
 const attackers = [];
 
 // Populate the attackers array with valid attacker objects
@@ -274,18 +246,16 @@ for (let c = 0; c < attackerColumnCount; c++) {
     attackers[c] = [];
     for (let r = 0; r < attackerRowCount; r++) {
         attackers[c][r] = {
-            x: c * (attackerWidth + attackerSpacing), // Adjust this as needed
-            y: r * (attackerHeight + attackerSpacing), // Adjust this as needed
-            alive: true, // Set the initial status of the attacker
-            imageIndex: Math.floor(Math.random() * images.length), // Assign a random image index
-            // Add other properties as needed for your game
+            x: c * (attackerWidth + attackerSpacing),
+            y: r * (attackerHeight + attackerSpacing),
+            alive: true,
+            imageIndex: Math.floor(Math.random() * images.length),
         };
     }
 }
 
 function startGame() {
     playerX = canvas.width / 2 - playerWidth / 2;
-    // Removed re-declaration of playerY
     attackerBullets = [];
     playerBullets = [];
     lives = 3;
@@ -304,24 +274,19 @@ function draw() {
         movePlayerBullets();
         moveAttackerBullets();
         attackersShoot();
-        //drawProtectionBlocks(); // Ensure protection blocks are drawn in every frame
-        drawScore(); // Draw the current score
+        drawScore();
 
         if (playerHit) {
             // Pause the game for 1 second (1000 milliseconds)
             setTimeout(() => {
-                playerHit = false; // Reset playerHit to false
-                requestAnimationFrame(draw); // Resume the game loop
+                playerHit = false;
+                requestAnimationFrame(draw);
             }, 1000);
         } else {
             requestAnimationFrame(draw);
         }
     }
 }
-
-
-
-
 
 document.addEventListener("keydown", (e) => {
     switch (e.key) {
@@ -336,26 +301,19 @@ document.addEventListener("keydown", (e) => {
             }
             break;
         case " ":
-            if (canShoot) { // Check if spacecraft can shoot
-
-                playLaserSound();
-                playerBullets.push({ 
-                    x: playerX + playerWidth / 2 - bulletWidth / 2, 
-                    y: playerY - bulletHeight, 
-                    width: bulletWidth, 
-                    height: bulletHeight 
-                  
+            if (canShoot) {
+                playerBullets.push({
+                    x: playerX + playerWidth / 2 - bulletWidth / 2,
+                    y: playerY - bulletHeight,
+                    width: bulletWidth,
+                    height: bulletHeight
                 });
-                canShoot = false; // Disable shooting until a bullet goes out of bounds or hits an enemy
+                canShoot = false;
             }
             break;
     }
 });
 
-
-
-
-  
 function movePlayerBullets() {
     for (let i = 0; i < playerBullets.length; i++) {
         let bullet = playerBullets[i];
@@ -364,29 +322,25 @@ function movePlayerBullets() {
         if (bullet.y < 0) {
             playerBullets.splice(i, 1);
             i--;
-            canShoot = true; // Enable shooting since the bullet is out of bounds
+            canShoot = true;
             continue;
         }
 
-        // Check for bullet hitting any attacker
         for (let c = 0; c < attackerColumnCount; c++) {
             for (let r = 0; r < attackerRowCount; r++) {
                 let attacker = attackers[c][r];
-                // Only check for collision if attacker is alive
                 if (attacker.alive) {
                     if (bullet.x > attacker.x && bullet.x < attacker.x + attackerWidth && bullet.y > attacker.y && bullet.y < attacker.y + attackerHeight) {
-                        // Collision detected
-                        attacker.alive = false; // Set the attacker's status to inactive
-                        playerBullets.splice(i, 1); // Remove this bullet from the array
-                        i--; // Decrement i since we removed an element from the array
-                        score += 100; // Increase the score
-                        canShoot = true; // Enable shooting since the bullet hit an enemy
-                        
-                        // Pause the game for 1 second
+                        attacker.alive = false;
+                        playerBullets.splice(i, 1);
+                        i--;
+                        score += 100;
+                        canShoot = true;
+
                         isGamePaused = true;
                         pauseStartTime = performance.now();
 
-                        break; // No need to check other attackers since bullet is destroyed
+                        break;
                     }
                 }
             }
@@ -402,15 +356,12 @@ function playLaserSound() {
     oscillator.connect(gainNode);
     gainNode.connect(audioContext.destination);
 
-    // Set the oscillator type to "sawtooth" for a retro laser sound
     oscillator.type = 'sawtooth';
 
-    // Set the frequency (pitch) of the oscillator for the laser sound
-    oscillator.frequency.setValueAtTime(8080, audioContext.currentTime); // Adjust the frequency as needed
+    oscillator.frequency.setValueAtTime(8080, audioContext.currentTime);
 
-    // Set the gain (volume) envelope for the laser sound
-    const attackTime = 0.01; // Attack time in seconds
-    const releaseTime = 0.1; // Release time in seconds
+    const attackTime = 0.01;
+    const releaseTime = 0.1;
 
     gainNode.gain.setValueAtTime(0, audioContext.currentTime);
     gainNode.gain.linearRampToValueAtTime(1, audioContext.currentTime + attackTime);
@@ -418,22 +369,17 @@ function playLaserSound() {
 
     oscillator.start();
 
-    // Stop the oscillator after the release time to create the laser sound
     oscillator.stop(audioContext.currentTime + releaseTime);
 }
 
-
-
 function allImagesAreLoaded(imagesArray) {
-    for(let img of imagesArray) {
-        if(!img.complete) {
+    for (let img of imagesArray) {
+        if (!img.complete) {
             return false;
         }
     }
     return true;
 }
-
-
 
 // Initialize the game
 startGame();
