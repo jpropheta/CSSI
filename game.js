@@ -5,8 +5,8 @@ const attackerSpacing = 50;  // Adjusted from 40 to 10
 const attackerSpeed = 7; // You can adjust this value to your liking
 let spacecraftImage = new Image();
 spacecraftImage.src = 'space.png'; 
-canvas.width = 800; // Set the canvas width
-canvas.height = 600; // Set the canvas height
+canvas.width = 1800; // Set the canvas width
+canvas.height = 1600; // Set the canvas height
 
 
 let images = []; // array to hold the image objects
