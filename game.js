@@ -1,8 +1,8 @@
 
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
-const attackerSpacing = 30;  // Adjusted from 40 to 10
-const attackerSpeed = 3; // You can adjust this value to your liking
+const attackerSpacing = 50;  // Adjusted from 40 to 10
+const attackerSpeed = 7; // You can adjust this value to your liking
 let spacecraftImage = new Image();
 spacecraftImage.src = 'space.png'; 
 canvas.width = 800; // Set the canvas width
