@@ -2,7 +2,7 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 const attackerSpacing = 10;  // Adjusted from 40 to 10
-const attackerSpeed = 02; // You can adjust this value to your liking
+const attackerSpeed = 07; // You can adjust this value to your liking
 let spacecraftImage = new Image();
 spacecraftImage.src = 'space.png'; 
 canvas.width = 800; // Set the canvas width
@@ -29,8 +29,8 @@ const attackerHeight = 30;
 const attackerRowCount = 5;
 const playerWidth = 40;
 const playerHeight = 20;
-const player = 25;
-const bullet = 7;
+const playerSpeed = 25;
+const bulletSpeed = 7;
 const bulletWidth = 3;
 const bulletHeight = 10;
 const attackerFireRate = 0.10;
@@ -338,7 +338,7 @@ document.addEventListener("keydown", (e) => {
         case " ":
             if (canShoot) { // Check if spacecraft can shoot
 
-                //playLaserSound();
+                playLaserSound();
                 playerBullets.push({ 
                     x: playerX + playerWidth / 2 - bulletWidth / 2, 
                     y: playerY - bulletHeight, 
@@ -406,7 +406,7 @@ function playLaserSound() {
     oscillator.type = 'sawtooth';
 
     // Set the frequency (pitch) of the oscillator for the laser sound
-    oscillator.frequency.setValueAtTime(880, audioContext.currentTime); // Adjust the frequency as needed
+    oscillator.frequency.setValueAtTime(8080, audioContext.currentTime); // Adjust the frequency as needed
 
     // Set the gain (volume) envelope for the laser sound
     const attackTime = 0.01; // Attack time in seconds
