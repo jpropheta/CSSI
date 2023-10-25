@@ -3,7 +3,7 @@ const ctx = canvas.getContext("2d");
 
 // Adjusted these constants for spacing and speed
 const attackerSpacing = 10;
-const attackerSpeed = 0.3;
+const attackerSpeed = 3;
 
 let spacecraftImage = new Image();
 spacecraftImage.src = 'space.png';
