@@ -2,8 +2,8 @@ const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
 // Adjusted these constants for spacing and speed
-const attackerSpacing = 10;
-const attackerSpeed = 9;
+const attackerSpacing = 30;
+const attackerSpeed = 5;
 
 let spacecraftImage = new Image();
 spacecraftImage.src = 'space.png';
@@ -32,7 +32,7 @@ const attackerHeight = 30;
 const attackerRowCount = 3; // Reduced from 5 for simplicity
 const playerWidth = 40;
 const playerHeight = 20;
-const playerSpeed = 20; // Adjusted speed
+const playerSpeed = 30; // Adjusted speed
 
 const bulletSpeed = 7;
 const bulletWidth = 3;
