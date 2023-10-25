@@ -32,12 +32,12 @@ const attackerHeight = 30;
 const attackerRowCount = 3; // Reduced from 5 for simplicity
 const playerWidth = 40;
 const playerHeight = 20;
-const playerSpeed = 50; // Adjusted speed
+const playerSpeed = 300; // Adjusted speed
 
-const bulletSpeed = 7;
+const bulletSpeed = 4;
 const bulletWidth = 3;
 const bulletHeight = 10;
-const attackerFireRate = 0.10;
+const attackerFireRate = 0.20;
 const maxAttackerBullets = 5;
 
 let shouldMoveDownAttackers = false;
