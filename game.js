@@ -466,23 +466,122 @@ function pickModuleForPhase(phase) {
 }
 
 // ─── DEATH CONTEXT ───────────────────────────────────────────────
+
 function getDeathContext(phase, modulesCollected) {
   if (!phase) return {
-    headline : "ADVERSARY ACHIEVED PERSISTENCE",
-    body     : "Deploy the full Falcon platform to close every gap across endpoints, identity and cloud.",
-    cta      : "crowdstrike.com/falcon-platform",
+    headline : "UNPROTECTED ENVIRONMENT — NO FALCON DEPLOYED",
+    body     : "This system was not running CrowdStrike Falcon. Without unified endpoint, identity and cloud protection, adversaries operate without resistance. This breach was entirely preventable.",
+    cta      : "crowdstrike.com — See how Falcon stops breaches before they start.",
   };
+
   const missing = phase.keyModules.filter(m => !modulesCollected.has(m));
-  for (const mid of missing) {
-    const msg = phase.deathMessages?.[mid];
-    if (msg) return msg;
+
+  const messages = {
+    "FANCY BEAR": {
+      IDENTITY: {
+        headline : "NO IDENTITY PROTECTION DEPLOYED — CREDENTIAL ATTACK SUCCEEDED",
+        body     : "This environment was not running Falcon Identity Protection. FANCY BEAR harvested credentials from an unmonitored system and authenticated freely — no behavioral baseline existed to flag the impossible travel, unusual access hours or atypical login patterns. In a protected environment, this attack would have been stopped at first authentication.",
+        cta      : "Falcon Identity Protection establishes behavioral baselines for every identity. crowdstrike.com/falcon-identity",
+      },
+      INSIGHT: {
+        headline : "NO XDR VISIBILITY — ATTACK CHAIN WENT UNDETECTED",
+        body     : "This environment lacked Falcon Insight XDR. Individual endpoint signals existed in silos — no technology correlated them into a unified attack story. FANCY BEAR's multi-stage campaign appeared as disconnected, low-priority noise. Organizations running Falcon XDR see the complete attack narrative in real time.",
+        cta      : "Falcon Insight XDR connects every signal across endpoint, identity and cloud. crowdstrike.com/falcon-insight",
+      },
+      OVERWATCH: {
+        headline : "NO MANAGED THREAT HUNTING — ADVERSARY OPERATED UNCONTESTED",
+        body     : "This organization did not have Falcon OverWatch. FANCY BEAR's living-off-the-land techniques blended seamlessly into legitimate admin activity — precisely why they use them. OverWatch elite hunters proactively search for exactly these patterns 24/7. Without human expertise in the loop, the adversary had unlimited dwell time.",
+        cta      : "Falcon OverWatch: expert hunters finding what automated tools miss, around the clock. crowdstrike.com/overwatch",
+      },
+    },
+
+    "AI SYNDICATE": {
+      CHARLOTTE: {
+        headline : "NO AI DEFENCE — AI ATTACK OPERATED AT MACHINE SPEED UNOPPOSED",
+        body     : "This environment had no AI-powered defence layer. AI SYNDICATE deployed LLM-generated malware variants faster than any human analyst could respond — thousands of novel samples per hour, each slightly different. Organizations without Charlotte AI face an asymmetric battle: human defenders against machine-speed attackers. Charlotte AI counters at the same velocity.",
+        cta      : "Charlotte AI: fight AI attacks with AI defence. crowdstrike.com/charlotte-ai",
+      },
+      PREVENT: {
+        headline : "LEGACY AV DEPLOYED — LLM-GENERATED MALWARE BYPASSED SIGNATURES",
+        body     : "This system was running a legacy, signature-based antivirus product — not Falcon Prevent. AI SYNDICATE generated fresh malware variants specifically to evade known signatures. Zero signatures matched. Zero alerts fired. Falcon Prevent's AI-native behavioral engine detects malicious intent, not signatures — making novel AI-generated threats irrelevant.",
+        cta      : "Falcon Prevent stops threats that have never been seen before. crowdstrike.com/falcon-prevent",
+      },
+      IDENTITY: {
+        headline : "NO IDENTITY ANALYTICS — DEEPFAKE IMPERSONATION WENT UNDETECTED",
+        body     : "This organization had no identity behavioral analytics deployed. When AI SYNDICATE conducted a deepfake voice call impersonating the CFO, the fraudulent wire authorisation looked indistinguishable from a legitimate request. Falcon Identity would have flagged the anomalous authorisation pattern, unusual request timing and session inconsistencies before approval.",
+        cta      : "Falcon Identity detects executive impersonation and anomalous authorisation requests in real time. crowdstrike.com/falcon-identity",
+      },
+    },
+
+    "CARBON SPIDER": {
+      PREVENT: {
+        headline : "LEGACY ANTIVIRUS INSTALLED — FILELESS RANSOMWARE EXECUTED FREELY",
+        body     : "This endpoint was protected by a legacy signature-based antivirus product — not Falcon Prevent. CARBON SPIDER's fileless ransomware ran entirely in memory using legitimate Windows processes. No files were written to disk. No signatures matched. The legacy tool was completely blind. Falcon Prevent's memory scanning and behavioral AI would have terminated the execution chain before a single file was encrypted.",
+        cta      : "Falcon Prevent: AI-native EPP that stops ransomware before encryption begins. crowdstrike.com/falcon-prevent",
+      },
+      COMPLETE: {
+        headline : "NO MANAGED RESPONSE — RANSOMWARE SPREAD FOR 11 MINUTES UNCONTESTED",
+        body     : "This organization had no managed detection and response capability. The ransomware alert fired at 2:17am — but with no team actively monitoring, the first human saw it at 6:44am. CARBON SPIDER had already encrypted 400 endpoints and exfiltrated 2.3TB of data. Falcon Complete MDR analysts would have received the alert within 60 seconds and begun containment immediately.",
+        cta      : "Falcon Complete MDR: expert analysts monitoring and responding 24/7. crowdstrike.com/falcon-complete",
+      },
+      OVERWATCH: {
+        headline : "NO THREAT HUNTING — 72-HOUR STAGING PHASE WENT UNNOTICED",
+        body     : "This environment had no proactive threat hunting capability. CARBON SPIDER spent three days inside the network before deploying ransomware — harvesting credentials, mapping file shares, disabling shadow copies and testing encryption on isolated endpoints. All of this activity looked like routine admin work to automated tools. OverWatch hunters know exactly what pre-ransomware staging looks like and would have raised the alarm on day one.",
+        cta      : "Falcon OverWatch detects pre-ransomware indicators before detonation. crowdstrike.com/overwatch",
+      },
+    },
+
+    "COZY BEAR": {
+      CLOUD: {
+        headline : "NO CLOUD SECURITY DEPLOYED — ENTIRE CLOUD ESTATE UNMONITORED",
+        body     : "This organization had endpoint protection but no cloud security tooling. COZY BEAR identified the unmonitored cloud environment within hours of initial access and pivoted entirely into cloud infrastructure — beyond the reach of every endpoint tool deployed. They operated in the cloud for 47 days. Falcon Cloud Security provides runtime protection across every workload, container and cloud API — closing this visibility gap entirely.",
+        cta      : "Falcon Cloud Security: CNAPP protection for every cloud workload. crowdstrike.com/cloud-security",
+      },
+      INSIGHT: {
+        headline : "SILOED SECURITY TOOLS — CLOUD-TO-ENDPOINT PIVOT INVISIBLE",
+        body     : "This organization operated endpoint and cloud security tools independently, with no unified detection layer. COZY BEAR's pivot from cloud OAuth abuse to endpoint access generated signals in both systems — but no technology correlated them. Each appeared as a low-priority, isolated anomaly. Falcon Insight XDR would have stitched these signals together and surfaced the full attack chain within minutes.",
+        cta      : "Falcon Insight XDR: unified detection across every domain. crowdstrike.com/falcon-insight",
+      },
+      OVERWATCH: {
+        headline : "NO THREAT HUNTERS — COZY BEAR OPERATED INSIDE FOR 47 DAYS",
+        body     : "This organization relied entirely on automated detection — and COZY BEAR knows exactly how to evade it. Their cloud TTPs are specifically engineered to mimic legitimate DevOps and service account activity. Automated tools classified every action as normal. OverWatch hunters who proactively search for COZY BEAR's specific playbook would have identified the intrusion on day three.",
+        cta      : "Falcon OverWatch hunts for cloud-native adversary tradecraft. crowdstrike.com/overwatch",
+      },
+    },
+
+    "SCATTERED SPIDER": {
+      IDENTITY: {
+        headline : "NO IDENTITY PROTECTION — MFA BYPASS WENT UNDETECTED",
+        body     : "This organization had multi-factor authentication enabled but no identity behavioral analytics. SCATTERED SPIDER called the helpdesk, socially engineered an MFA reset and authenticated using valid credentials from an unusual location, at an unusual time, on an unrecognised device. Every signal indicated compromise — but without Falcon Identity to analyze these behavioral patterns, the login appeared legitimate. The first alert came from the victim's bank.",
+        cta      : "Falcon Identity: behavioral analytics that make valid credentials an unreliable weapon. crowdstrike.com/falcon-identity",
+      },
+      COMPLETE: {
+        headline : "NO MANAGED RESPONSE — SCATTERED SPIDER PERSISTED FOR 4 HOURS UNCONTESTED",
+        body     : "This organization's security team worked business hours. SCATTERED SPIDER struck at 11pm on a Friday. They had four uncontested hours to conduct reconnaissance, escalate privileges, exfiltrate customer data and deploy ransomware — all before a human reviewed a single alert. Falcon Complete MDR analysts are active 24/7/365. The response would have begun within 60 seconds of the anomalous authentication.",
+        cta      : "Falcon Complete MDR: your security team never sleeps. crowdstrike.com/falcon-complete",
+      },
+      OVERWATCH: {
+        headline : "NO THREAT HUNTERS — POST-VISHING ACTIVITY CLASSIFIED AS NORMAL",
+        body     : "After gaining access, SCATTERED SPIDER performed methodical reconnaissance that automated tools classified as routine IT administration — password vault access, Active Directory enumeration, cloud console exploration. OverWatch hunters know SCATTERED SPIDER's post-vishing playbook intimately. They would have flagged the behavioral sequence within the first hour and initiated containment before any data left the environment.",
+        cta      : "Falcon OverWatch: elite hunters who know adversary playbooks by heart. crowdstrike.com/overwatch",
+      },
+    },
+  };
+
+  const actorMsgs = messages[phase.name];
+  if (actorMsgs) {
+    for (const mod of missing) {
+      if (actorMsgs[mod]) return actorMsgs[mod];
+    }
   }
+
   return {
-    headline : `${phase.name} ACHIEVED THEIR OBJECTIVE`,
-    body     : phase.attackDesc,
-    cta      : `Recommended: ${phase.keyModules.map(m=>MODULES[m]?.name??m).join(" + ")}`,
+    headline : `NO CROWDSTRIKE DEPLOYED — ${phase.name} OPERATED WITHOUT RESISTANCE`,
+    body     : `This environment was not running the Falcon modules recommended for ${phase.name}. ${phase.attackDesc} Organizations with the full Falcon platform deployed stop this attack before it progresses past initial access.`,
+    cta      : `Recommended for ${phase.name}: ${phase.keyModules.map(m => MODULES[m]?.name ?? m).join(" + ")}`,
   };
 }
+
 
 // ─── CFG ─────────────────────────────────────────────────────────
 const CFG = Object.freeze({
@@ -502,7 +601,7 @@ const CFG = Object.freeze({
   COMBO_WINDOW: 3000,
   HIT_PAUSE_MS: 700,
   WAVE_BANNER_MS: 3200,   // 3.2s — skippable
-  INTEL_BRIEF_MS: 11000,  // 11s — skippable
+  INTEL_BRIEF_MS: 22000,  // 22s — skippable
   LEVEL_CLEAR_MS: 3500,   // 3.5s — skippable
   BOSS_WARN_MS: 3200,     // 3.2s — skippable
   DROP_CHANCE: 0.27,      // 27% drop rate
