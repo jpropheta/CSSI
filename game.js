@@ -1758,9 +1758,24 @@ class Game {
   }
 
   #drawLoading() {
-    ctx.fillStyle = PAL.BG; ctx.fillRect(0,0,canvas.width,canvas.height);
-    ctx.font      = "bold 28px 'Courier New'";
-    ctx.textAlign = "center";
-    ctx.fillStyle = PAL.NEON_CYAN; ctx.shadowColor=PAL.NEON_CYAN; ctx.shadowBlur=20;
-    ctx.fillText("⚡ LOADING ASSETS…", canvas.width/2, canvas.height/2);
-    ctx.shadowBl
+    ctx.fillStyle  = PAL.BG;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.font       = "bold 28px 'Courier New'";
+    ctx.textAlign  = "center";
+    ctx.fillStyle  = PAL.NEON_CYAN;
+    ctx.shadowColor= PAL.NEON_CYAN;
+    ctx.shadowBlur = 20;
+    ctx.fillText(
+      "⚡ LOADING ASSETS…",
+      canvas.width / 2,
+      canvas.height / 2
+    );
+    ctx.shadowBlur = 0;
+    ctx.textAlign  = "left";
+  }
+
+} // ← closes class Game
+
+
+const game = new Game();
+game.init().catch(console.error);
