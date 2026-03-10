@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════════
-//  🦅  FALCON ARCADE DEFENSE  |  CrowdStrike 2026
+//  🦅  FALCON ARCADE  |  CrowdStrike 2026
 //  Protect. Detect. Respond. — We Stop Breaches.
 // ═══════════════════════════════════════════════════════════════════
 "use strict";
@@ -443,7 +443,296 @@ const PHASES = [
       },
     },
   },
+
+
+
+  // ── PHASE 6 — VOLT TYPHOON ───────────────────────────────────
+  {
+    id         : "volt_typhoon",
+    waveNum    : 6,
+    isBoss     : false,
+    color      : CS.TEAL,
+
+    name       : "VOLT TYPHOON",
+    shortName  : "VOLT TYPHOON",
+    aka        : "Bronze Silhouette / Vanguard Panda",
+    nation     : "🇨🇳 China — PLA Strategic Support Force",
+    shortNation: "🇨🇳 China — PLA",
+    threat     : "CRITICAL",
+    vector     : "Living-off-the-Land · Critical Infrastructure",
+
+    desc       : "Chinese state-sponsored group tasked with pre-positioning inside US critical infrastructure — power grids, water systems, communications networks. Not here to steal data. Here to be ready to cause disruption on command. Dwell times measured in years, not days.",
+    attackDesc : "VOLT TYPHOON uses exclusively built-in Windows tools — no malware, no custom code, nothing to detect. They blend into legitimate network administration traffic so completely that their activity is statistically indistinguishable from authorized operations. Attack surface is every unmonitored OT and IT boundary.",
+    falconFix  : "Falcon Exposure Management discovers every asset VOLT TYPHOON could target — including OT systems, legacy infrastructure and forgotten internet-exposed services. Falcon Insight XDR establishes behavioral baselines for administrative tools, flagging living-off-the-land abuse. OverWatch hunters proactively look for the slow, methodical pre-positioning that defines VOLT TYPHOON operations.",
+
+    keyModules : ["FEM","INSIGHT","OVERWATCH","PREVENT"],
+
+    moduleNarrative: {
+      FEM       : "Maps every exposed asset VOLT TYPHOON could exploit — including OT boundaries and legacy systems.",
+      INSIGHT   : "Detects living-off-the-land abuse by baselining legitimate admin tool usage across the environment.",
+      OVERWATCH : "Hunters identify the slow pre-positioning activity that spans months — invisible to automated tools.",
+      PREVENT   : "Behavioral AI detects misuse of legitimate binaries even when no malware is present.",
+    },
+
+    drops: {
+      FEM       : 0.30,
+      INSIGHT   : 0.24,
+      OVERWATCH : 0.20,
+      PREVENT   : 0.14,
+      PANGEA    : 0.08,
+      CHARLOTTE : 0.04,
+    },
+
+    deathMessages: {
+      FEM: {
+        headline : "NO EXPOSURE MANAGEMENT — VOLT TYPHOON FOUND ASSETS YOU DIDN'T KNOW EXISTED",
+        body     : "This organization had no attack surface management capability. VOLT TYPHOON's initial reconnaissance identified 23 internet-exposed legacy systems that the security team had no record of — forgotten VPNs, decommissioned but still-running servers, unpatched OT interfaces. Falcon Exposure Management continuously discovers and prioritizes every exposed asset before adversaries exploit them.",
+        cta      : "Falcon Exposure Management: know your attack surface before adversaries do. crowdstrike.com/exposure-management",
+      },
+      INSIGHT: {
+        headline : "NO BEHAVIORAL BASELINES — LIVING-OFF-THE-LAND ABUSE INVISIBLE",
+        body     : "VOLT TYPHOON used only built-in Windows utilities — PowerShell, WMI, netsh, ntdsutil. No malware. No custom tools. Every action was performed by software that was supposed to be running. Without behavioral baselines from Falcon Insight XDR, there was no way to distinguish legitimate admin activity from adversary abuse of the same tools.",
+        cta      : "Falcon Insight XDR: behavioral detection that catches tool abuse, not just malware. crowdstrike.com/falcon-insight",
+      },
+      OVERWATCH: {
+        headline : "NO THREAT HUNTERS — VOLT TYPHOON PRE-POSITIONED FOR 300 DAYS UNDETECTED",
+        body     : "VOLT TYPHOON's operational tempo is deliberately slow — weeks between actions, blending into change windows and maintenance periods. Their entire strategy relies on the fact that automated tools look for anomalies in short timeframes. OverWatch hunters analyze behavioral patterns across months, recognizing the patient, methodical pre-positioning that defines Chinese state-sponsored infrastructure targeting.",
+        cta      : "Falcon OverWatch: threat hunting that operates on adversary timelines, not alert timelines. crowdstrike.com/overwatch",
+      },
+    },
+  },
+
+  // ── PHASE 7 — SCATTERED SPIDER RETURNS (BOSS) ────────────────
+  {
+    id         : "midnight_blizzard_boss",
+    waveNum    : 7,
+    isBoss     : true,
+    color      : CS.BLUE,
+
+    name       : "MIDNIGHT BLIZZARD",
+    shortName  : "MIDNIGHT BLIZZARD",
+    aka        : "APT29 / NOBELIUM / Cozy Bear — Elite Tier",
+    nation     : "🇷🇺 Russia — SVR Tier-1 Operations",
+    shortNation: "🇷🇺 Russia — SVR",
+    threat     : "CRITICAL",
+    vector     : "Supply Chain · MFA Bypass · Trusted Vendor Abuse",
+
+    desc       : "The elite operational arm of COZY BEAR — responsible for the SolarWinds supply chain compromise, the Microsoft corporate email breach and the compromise of multiple US federal agencies. Operates at a level of sophistication that makes them one of the three most capable threat actors on the planet.",
+    attackDesc : "MIDNIGHT BLIZZARD compromises trusted software vendors and pushes malicious updates to thousands of downstream customers simultaneously. They also conduct password spray attacks at low velocity — one attempt per account per day — to evade lockout policies, then abuse MFA through token theft rather than brute force.",
+    falconFix  : "Falcon Complete MDR provides the managed expertise to detect and respond to supply chain compromises before they propagate. Falcon Identity catches the low-and-slow password spray patterns and MFA token theft that signature tools miss entirely. OverWatch hunters specifically track NOBELIUM TTPs across the CrowdStrike customer base — threat intelligence shared in real time.",
+
+    keyModules : ["COMPLETE","IDENTITY","OVERWATCH","INSIGHT","PANGEA"],
+
+    moduleNarrative: {
+      COMPLETE  : "MDR analysts with NOBELIUM-specific expertise respond to supply chain indicators within minutes.",
+      IDENTITY  : "Detects low-velocity password spray and MFA token theft — the exact techniques MIDNIGHT BLIZZARD relies on.",
+      OVERWATCH : "Elite hunters track NOBELIUM TTPs globally, sharing intelligence across the entire CrowdStrike customer base.",
+      INSIGHT   : "XDR correlates supply chain telemetry with endpoint and identity signals to expose the full compromise.",
+      PANGEA    : "Planet-scale intelligence identifies MIDNIGHT BLIZZARD infrastructure and blocks it globally before first contact.",
+    },
+
+    drops: {
+      COMPLETE  : 0.26,
+      IDENTITY  : 0.22,
+      OVERWATCH : 0.20,
+      INSIGHT   : 0.14,
+      PANGEA    : 0.12,
+      FEM       : 0.06,
+    },
+
+    deathMessages: {
+      COMPLETE: {
+        headline : "NO MDR CAPABILITY — SUPPLY CHAIN COMPROMISE PROPAGATED UNDETECTED",
+        body     : "A trusted software vendor was compromised and pushed a malicious update to this organization. Without Falcon Complete MDR, there was no team with the expertise to recognize the supply chain indicators — the anomalous update behavior, the unusual outbound connections, the lateral movement from the affected binary. By the time internal teams investigated, MIDNIGHT BLIZZARD had been present for 90 days.",
+        cta      : "Falcon Complete MDR: managed expertise that detects supply chain compromises others miss. crowdstrike.com/falcon-complete",
+      },
+      IDENTITY: {
+        headline : "LOW-VELOCITY PASSWORD SPRAY UNDETECTED — MFA TOKEN STOLEN",
+        body     : "MIDNIGHT BLIZZARD attempted one login per account per day — deliberately staying below every lockout threshold. Over six weeks, they identified valid credentials for a privileged account. Standard MFA was then bypassed through token theft rather than brute force. Without Falcon Identity's behavioral analytics, the low-velocity spray and subsequent token abuse appeared as normal authentication activity.",
+        cta      : "Falcon Identity detects low-velocity credential attacks and MFA token theft in real time. crowdstrike.com/falcon-identity",
+      },
+      OVERWATCH: {
+        headline : "NO NOBELIUM EXPERTISE — BESPOKE TTPS WENT UNRECOGNIZED",
+        body     : "MIDNIGHT BLIZZARD uses techniques and infrastructure specifically developed to evade commercial detection tools. Their TTPs are documented only through years of incident response and threat hunting across hundreds of compromises. OverWatch hunters carry this institutional knowledge — they recognize NOBELIUM's unique behavioral fingerprint and hunt for it proactively in every customer environment.",
+        cta      : "Falcon OverWatch: adversary-specific hunting expertise that generic tools cannot replicate. crowdstrike.com/overwatch",
+      },
+    },
+  },
+
+  // ── PHASE 8 — SANDWORM ───────────────────────────────────────
+  {
+    id         : "sandworm",
+    waveNum    : 8,
+    isBoss     : false,
+    color      : CS.RED,
+
+    name       : "SANDWORM",
+    shortName  : "SANDWORM",
+    aka        : "Voodoo Bear / IRIDIUM / Unit 74455",
+    nation     : "🇷🇺 Russia — GRU Unit 74455",
+    shortNation: "🇷🇺 Russia — GRU",
+    threat     : "CRITICAL",
+    vector     : "Destructive Malware · OT/ICS Attacks · Wiper Deployment",
+
+    desc       : "The most destructive cyber threat actor ever documented. SANDWORM caused the first confirmed power outage via cyberattack, deployed NotPetya — the costliest cyberattack in history at $10B — and continues targeting critical infrastructure globally. Their objective is not espionage or financial gain. It is destruction.",
+    attackDesc : "SANDWORM deploys wiper malware designed to permanently destroy data and render systems unrecoverable. They target OT and ICS systems to cause physical damage — disabling safety systems, corrupting firmware, destroying industrial equipment. Recovery requires physical hardware replacement, not incident response.",
+    falconFix  : "Falcon Prevent's behavioral AI detects wiper malware execution before destruction begins. Falcon Exposure Management identifies every OT and ICS asset boundary before SANDWORM does. Falcon Complete MDR provides the immediate containment capability to isolate affected systems before the wiper propagates across the environment.",
+
+    keyModules : ["PREVENT","FEM","COMPLETE","OVERWATCH"],
+
+    moduleNarrative: {
+      PREVENT   : "Behavioral AI detects wiper malware execution patterns before a single file is destroyed.",
+      FEM       : "Discovers every OT and ICS boundary SANDWORM could target — including assets security teams don't know exist.",
+      COMPLETE  : "Immediate containment capability to isolate affected systems before wiper malware propagates.",
+      OVERWATCH : "Hunters identify SANDWORM's pre-destruction staging — the reconnaissance that always precedes a wiper deployment.",
+    },
+
+    drops: {
+      PREVENT   : 0.28,
+      FEM       : 0.22,
+      COMPLETE  : 0.20,
+      OVERWATCH : 0.18,
+      INSIGHT   : 0.08,
+      PANGEA    : 0.04,
+    },
+
+    deathMessages: {
+      PREVENT: {
+        headline : "NO BEHAVIORAL AI — WIPER EXECUTED AND DESTROYED 40,000 ENDPOINTS",
+        body     : "SANDWORM's wiper malware had never been seen before — no signature existed anywhere. Legacy AV and EDR tools that rely on known indicators found nothing. Falcon Prevent's behavioral AI doesn't need to recognize the file — it recognizes the behavior: mass file overwrite, MBR destruction, VSS deletion. Execution would have been terminated in milliseconds.",
+        cta      : "Falcon Prevent: behavioral AI that stops destructive malware before the first file is wiped. crowdstrike.com/falcon-prevent",
+      },
+      FEM: {
+        headline : "UNKNOWN OT ASSETS TARGETED — NO VISIBILITY INTO INDUSTRIAL SYSTEMS",
+        body     : "SANDWORM's reconnaissance identified 14 OT and ICS systems that this organization's security team had no record of — legacy SCADA interfaces, unpatched HMI systems, forgotten engineering workstations with direct OT network access. Falcon Exposure Management would have discovered and prioritized these assets weeks before SANDWORM did.",
+        cta      : "Falcon Exposure Management: discover your OT attack surface before adversaries weaponize it. crowdstrike.com/exposure-management",
+      },
+      COMPLETE: {
+        headline : "NO CONTAINMENT CAPABILITY — WIPER PROPAGATED ACROSS ENTIRE ENVIRONMENT",
+        body     : "The wiper began on a single engineering workstation and propagated to 40,000 endpoints in 17 minutes using legitimate network shares. Without a managed response team actively monitoring and empowered to isolate systems, there was no mechanism to stop propagation. Falcon Complete MDR analysts would have isolated the initial endpoint within 90 seconds — limiting blast radius to a single machine.",
+        cta      : "Falcon Complete MDR: containment in seconds, not hours. crowdstrike.com/falcon-complete",
+      },
+    },
+  },
+
+  // ── PHASE 9 — ALPHV/BLACKCAT (BOSS) ─────────────────────────
+  {
+    id         : "blackcat_boss",
+    waveNum    : 9,
+    isBoss     : true,
+    color      : CS.PURPLE,
+
+    name       : "ALPHV BLACKCAT",
+    shortName  : "BLACKCAT",
+    aka        : "ALPHV / Noberus — RaaS Operator",
+    nation     : "🌐 eCrime — Ransomware-as-a-Service",
+    shortNation: "🌐 RaaS Operator",
+    threat     : "HIGH",
+    vector     : "Ransomware-as-a-Service · Triple Extortion",
+
+    desc       : "The most technically sophisticated Ransomware-as-a-Service operation ever observed. Written in Rust for cross-platform capability — encrypts Windows, Linux and VMware ESXi simultaneously. Operates a triple extortion model: encrypt data, threaten to publish it, then DDoS the victim while negotiating. Responsible for breaches at MGM Resorts, Change Healthcare and hundreds of critical infrastructure targets.",
+    attackDesc : "BLACKCAT affiliates purchase access from initial access brokers, deploy the ransomware across the entire estate simultaneously — endpoints, servers and VMware infrastructure in one coordinated strike. The Rust-based payload evades most EDR tools. Triple extortion creates maximum pressure: you pay to decrypt, pay to suppress publication and pay to stop the DDoS.",
+    falconFix  : "Falcon Prevent detects BLACKCAT's Rust-based payload through behavioral analysis regardless of language or compilation. Falcon Complete MDR responds to the initial access broker activity that always precedes a BLACKCAT deployment — stopping the attack weeks before encryption. Charlotte AI autonomously neutralizes the high-velocity affiliate activity that overwhelms human analyst teams.",
+
+    keyModules : ["PREVENT","COMPLETE","CHARLOTTE","OVERWATCH","INSIGHT"],
+
+    moduleNarrative: {
+      PREVENT   : "Behavioral AI detects BLACKCAT's Rust payload — language and compilation method are irrelevant to behavioral detection.",
+      COMPLETE  : "MDR analysts detect and evict initial access broker activity weeks before BLACKCAT affiliates deploy ransomware.",
+      CHARLOTTE : "Autonomous AI neutralizes the high-velocity multi-vector activity that overwhelms human analyst teams during a BLACKCAT deployment.",
+      OVERWATCH : "Hunters identify the pre-ransomware staging that every BLACKCAT affiliate performs — credential harvesting, ESXi enumeration, backup destruction.",
+      INSIGHT   : "XDR correlates the full BLACKCAT kill chain — from initial broker access through ESXi encryption — across every domain.",
+    },
+
+    drops: {
+      PREVENT   : 0.24,
+      COMPLETE  : 0.22,
+      CHARLOTTE : 0.18,
+      OVERWATCH : 0.16,
+      INSIGHT   : 0.12,
+      PANGEA    : 0.08,
+    },
+
+    deathMessages: {
+      PREVENT: {
+        headline : "RUST-BASED PAYLOAD BYPASSED LEGACY EDR — ENCRYPTION COMPLETE",
+        body     : "BLACKCAT's ransomware is written in Rust — a language that most legacy EDR tools have poor visibility into. The payload was compiled fresh for this campaign. Zero signatures matched. The legacy endpoint tool detected the encryption activity only after 12,000 files had already been destroyed. Falcon Prevent's behavioral AI detected the malicious pattern at process launch — before the first file was touched.",
+        cta      : "Falcon Prevent: behavioral detection that is language and compiler agnostic. crowdstrike.com/falcon-prevent",
+      },
+      COMPLETE: {
+        headline : "INITIAL ACCESS BROKER ACTIVITY IGNORED — BLACKCAT AFFILIATE DEPLOYED",
+        body     : "Three weeks before the ransomware detonated, an initial access broker had already sold access to this environment on a dark web forum. The broker's reconnaissance activity generated low-priority alerts that no one investigated. Falcon Complete MDR analysts would have recognized the broker's behavioral fingerprint and initiated eviction before the BLACKCAT affiliate ever received the credentials.",
+        cta      : "Falcon Complete MDR: stopping ransomware at the access broker stage — weeks before encryption. crowdstrike.com/falcon-complete",
+      },
+      CHARLOTTE: {
+        headline : "ANALYST TEAM OVERWHELMED — MULTI-VECTOR BLACKCAT DEPLOYMENT SUCCEEDED",
+        body     : "BLACKCAT affiliates simultaneously encrypted endpoints, VMware ESXi hosts and backup infrastructure across three geographic locations. The alert volume overwhelmed the security team in the first four minutes — 847 alerts requiring triage while encryption was actively running. Charlotte AI autonomously triages and neutralizes at machine speed, preventing alert fatigue from becoming the attack's primary weapon.",
+        cta      : "Charlotte AI: autonomous threat response that cannot be overwhelmed by alert volume. crowdstrike.com/charlotte-ai",
+      },
+    },
+  },
+
+  // ── PHASE 10 — LAZARUS GROUP (FINAL BOSS) ────────────────────
+  {
+    id         : "lazarus_final",
+    waveNum    : 10,
+    isBoss     : true,
+    color      : CS.PURPLE,
+
+    name       : "LAZARUS GROUP",
+    shortName  : "LAZARUS",
+    aka        : "Hidden Cobra / Zinc / Diamond Sleet",
+    nation     : "🇰🇵 North Korea — RGB Bureau 121",
+    shortNation: "🇰🇵 N. Korea — RGB",
+    threat     : "CRITICAL",
+    vector     : "Financial Theft · Crypto Heist · Destructive Capability",
+
+    desc       : "North Korea's premier cyber unit — responsible for stealing over $3 billion in cryptocurrency to fund the regime's weapons programs. Combines nation-state sophistication with financially-motivated eCrime. Conducts espionage, financial theft and destructive attacks simultaneously. The only threat actor capable of all three mission types at the highest level of execution.",
+    attackDesc : "LAZARUS conducts multi-year financial operations — compromising cryptocurrency exchanges, DeFi protocols and financial institutions with custom tooling built specifically for each target. They maintain persistence for months, studying internal processes before executing precision fund transfers. When discovered, they deploy destructive malware to cover their tracks and punish the victim.",
+    falconFix  : "The full Falcon platform is required to counter LAZARUS at every stage. Falcon Prevent stops their custom malware. Falcon Identity detects the credential abuse used during financial reconnaissance. Falcon Complete MDR provides the expert-led response required to fully evict a nation-state actor. Charlotte AI processes the enormous telemetry volume LAZARUS operations generate. Falcon OverWatch has tracked LAZARUS TTPs for over a decade.",
+
+    keyModules : ["COMPLETE","PREVENT","IDENTITY","CHARLOTTE","OVERWATCH","PANGEA"],
+
+    moduleNarrative: {
+      COMPLETE  : "Expert-led MDR response is essential to fully evict a nation-state actor with LAZARUS's operational depth.",
+      PREVENT   : "Behavioral AI stops LAZARUS custom malware regardless of how bespoke the tooling — they build new tools for every campaign.",
+      IDENTITY  : "Detects the credential abuse and privileged account reconnaissance LAZARUS conducts during financial targeting.",
+      CHARLOTTE : "Autonomous AI processes the massive telemetry volume that LAZARUS multi-stage operations generate — humans cannot keep pace.",
+      OVERWATCH : "A decade of LAZARUS hunting experience — OverWatch knows their infrastructure, their timing and their operational patterns.",
+      PANGEA    : "Global intelligence identifies LAZARUS cryptocurrency mixing infrastructure and C2 nodes before first contact.",
+    },
+
+    drops: {
+      COMPLETE  : 0.22,
+      PREVENT   : 0.18,
+      IDENTITY  : 0.16,
+      CHARLOTTE : 0.14,
+      OVERWATCH : 0.14,
+      PANGEA    : 0.10,
+      INSIGHT   : 0.06,
+    },
+
+    deathMessages: {
+      COMPLETE: {
+        headline : "NATION-STATE ACTOR NOT FULLY EVICTED — LAZARUS RE-ESTABLISHED ACCESS",
+        body     : "This organization attempted to respond to the LAZARUS intrusion using internal resources. The team successfully identified and removed the initial implant — but LAZARUS had already established four additional persistence mechanisms across different systems. Without MDR expertise specifically in nation-state eviction procedures, the remediation was incomplete. LAZARUS was back inside within 72 hours using a different entry point.",
+        cta      : "Falcon Complete MDR: complete nation-state eviction, not just incident containment. crowdstrike.com/falcon-complete",
+      },
+      PREVENT: {
+        headline : "CUSTOM LAZARUS TOOLING BYPASSED EVERY DEPLOYED SECURITY TOOL",
+        body     : "LAZARUS built a custom implant specifically for this campaign — it had never appeared in any threat intelligence feed, any malware repository or any sandbox. Every signature-based and heuristic tool in the environment failed to detect it. The implant operated for 14 months before being accidentally discovered during an unrelated audit. Falcon Prevent's behavioral AI would have flagged the implant's network communication and process injection behavior on day one.",
+        cta      : "Falcon Prevent: behavioral detection that makes custom tooling irrelevant. crowdstrike.com/falcon-prevent",
+      },
+      CHARLOTTE: {
+        headline : "ANALYST TEAM UNABLE TO PROCESS LAZARUS TELEMETRY VOLUME",
+        body     : "A LAZARUS operation spanning 14 months generated over 2.4 million security events across this environment. The security team, operating at maximum capacity, investigated fewer than 3% of them. LAZARUS deliberately generates noise — benign-looking activity designed to bury the meaningful signals. Charlotte AI processes every event at machine speed, surfacing only the signals that matter.",
+        cta      : "Charlotte AI: machine-speed analysis that finds LAZARUS signals in a sea of noise. crowdstrike.com/charlotte-ai",
+      },
+    },
+  },
 ];
+
+
 
 // ─── PHASE MODULE DROP SYSTEM ────────────────────────────────────
 // Normalises phase drop weights, auto-injects PREVENT + OVERWATCH.
@@ -1615,7 +1904,7 @@ class TitleScreen{
     grad.addColorStop(0.7,CS.RED);grad.addColorStop(1,CS.ORANGE);
     ctx.fillStyle=grad;ctx.shadowColor=CS.RED;
     ctx.shadowBlur=26+Math.sin(t*2.5)*8;
-    ctx.fillText("FALCON ARCADE DEFENSE",w/2,h*0.17+bounce);
+    ctx.fillText("FALCON ARCADE",w/2,h*0.17+bounce);
     ctx.font="bold 13px 'Courier New'";ctx.fillStyle=CS.GREY;ctx.shadowBlur=0;
     ctx.fillText("POWERED BY  🦅  CROWDSTRIKE",w/2,h*0.26+bounce*0.5);
     ctx.restore();
@@ -1644,50 +1933,167 @@ class TitleScreen{
     }
     ctx.restore();
   }
-  #threatPreview(ctx,w,h,t){
+    #threatPreview(ctx,w,h,t){
     const n=PHASES.length,EW=110,EH=46,gap=9;
-    const totW=n*(EW+gap)-gap,sx=(w-totW)/2,y=h*0.35;
-    ctx.save();ctx.textAlign="center";
-    ctx.font="bold 9px 'Courier New'";ctx.fillStyle=CS.GREY;ctx.shadowBlur=0;
-    ctx.fillText("— KNOWN THREAT ACTORS —",w/2,y-8);
-    PHASES.forEach((phase,i)=>{
-      const x=sx+i*(EW+gap),bob=Math.sin(t*1.5+i*0.8)*3;
-      ctx.fillStyle="rgba(4,1,18,0.85)";
-      ctx.strokeStyle=phase.color;ctx.lineWidth=1.5;
-      ctx.shadowColor=phase.color;ctx.shadowBlur=7;
-      ctx.beginPath();ctx.roundRect(x,y+bob,EW,EH,4);ctx.fill();ctx.stroke();
-      const nl=phase.shortName.length;
-      ctx.font=`bold ${nl>12?7:nl>9?8:9}px 'Courier New'`;
-      ctx.fillStyle=phase.color;ctx.shadowBlur=5;
-      ctx.fillText(phase.shortName,x+EW/2,y+bob+15);
-      ctx.font="7px 'Courier New'";ctx.fillStyle=CS.GREY;ctx.shadowBlur=0;
-      ctx.fillText(phase.shortNation,x+EW/2,y+bob+27);
-      ctx.font="7px 'Courier New'";ctx.fillStyle=CS.LTGREY;
-      const vec=phase.vector.length>18?phase.vector.slice(0,16)+"…":phase.vector;
-      ctx.fillText(vec,x+EW/2,y+bob+38);
-    });
-    ctx.restore();
-  }
-  #moduleStrip(ctx,w,h){
-    const mods=Object.values(MODULES);
-    const EW=62,EH=40,gap=7;
-    const totW=mods.length*(EW+gap)-gap,sx=(w-totW)/2,y=h*0.56;
+    const totalW=n*(EW+gap);
+    // Carousel: scroll continuously, loop seamlessly
+    const speed=38; // px per second — increase to scroll faster
+    const offset=((t*speed)%(totalW))  ;
+    const y=h*0.35;
+
     ctx.save();
-    mods.forEach((m,i)=>{
-      const x=sx+i*(EW+gap);
-      const pulse=0.7+Math.sin(performance.now()*0.002+i*0.7)*0.3;
-      ctx.fillStyle="rgba(4,1,18,0.78)";
-      ctx.strokeStyle=m.color;ctx.lineWidth=1;
-      ctx.shadowColor=m.color;ctx.shadowBlur=6*pulse;
-      ctx.beginPath();ctx.roundRect(x,y,EW,EH,3);ctx.fill();ctx.stroke();
-      ctx.font="15px serif";ctx.textAlign="center";ctx.shadowBlur=0;
-      ctx.fillText(m.emoji,x+EW/2,y+22);
-      ctx.font="bold 6px 'Courier New'";ctx.fillStyle=m.color;
-      const label=m.shortName.length>9?m.shortName.slice(0,9):m.shortName;
-      ctx.fillText(label,x+EW/2,y+34);
-    });
+    // Clip to a window so cards don't draw outside the strip
+    ctx.beginPath();
+    ctx.rect(0,y-10,w,EH+20);
+    ctx.clip();
+
+    ctx.textAlign="center";
+    ctx.font="bold 9px 'Courier New'";
+    ctx.fillStyle=CS.GREY;ctx.shadowBlur=0;
+
+    // Draw label above strip (outside clip doesn't matter — it's above)
+    ctx.restore();
+    ctx.save();
+    ctx.textAlign="center";
+    ctx.font="bold 9px 'Courier New'";
+    ctx.fillStyle=CS.GREY;
+    ctx.fillText("— KNOWN THREAT ACTORS —",w/2,y-8);
+    ctx.beginPath();ctx.rect(0,y-2,w,EH+10);ctx.clip();
+
+    // Render enough copies to fill width seamlessly (2 full loops)
+    const copies=Math.ceil(w/totalW)+2;
+    for(let copy=0;copy<copies;copy++){
+      PHASES.forEach((phase,i)=>{
+        const x=(copy*totalW)+i*(EW+gap)-offset+(w-totalW)/2;
+        // Only draw if visible
+        if(x+EW<-10||x>w+10) return;
+
+        const bob=Math.sin(t*1.5+i*0.8)*3;
+        const isCenter=Math.abs(x+EW/2-w/2)<EW*0.8;
+        const scale=isCenter?1.06:0.94;
+        const alpha=isCenter?1:0.65;
+
+        ctx.save();
+        ctx.globalAlpha=alpha;
+        ctx.translate(x+EW/2,y+bob+EH/2);
+        ctx.scale(scale,scale);
+        ctx.translate(-(x+EW/2),-(y+bob+EH/2));
+
+        ctx.fillStyle="rgba(4,1,18,0.85)";
+        ctx.strokeStyle=phase.color;ctx.lineWidth=isCenter?2:1.5;
+        ctx.shadowColor=phase.color;ctx.shadowBlur=isCenter?12:6;
+        ctx.beginPath();
+        ctx.roundRect(x,y+bob,EW,EH,4);
+        ctx.fill();ctx.stroke();
+
+        const nl=phase.shortName.length;
+        ctx.font=`bold ${nl>12?7:nl>9?8:9}px 'Courier New'`;
+        ctx.fillStyle=phase.color;ctx.shadowBlur=isCenter?8:4;
+        ctx.textAlign="center";
+        ctx.fillText(phase.shortName,x+EW/2,y+bob+15);
+
+        ctx.font="7px 'Courier New'";
+        ctx.fillStyle=CS.GREY;ctx.shadowBlur=0;
+        ctx.fillText(phase.shortNation,x+EW/2,y+bob+27);
+
+        ctx.font="7px 'Courier New'";ctx.fillStyle=CS.LTGREY;
+        const vec=phase.vector.length>18?phase.vector.slice(0,16)+"…":phase.vector;
+        ctx.fillText(vec,x+EW/2,y+bob+38);
+
+        ctx.restore();
+      });
+    }
+
+    // Fade edges — left and right gradient masks
+    const fadeW=60;
+    const fadeL=ctx.createLinearGradient(0,0,fadeW,0);
+    fadeL.addColorStop(0,"rgba(4,1,12,1)");
+    fadeL.addColorStop(1,"rgba(4,1,12,0)");
+    ctx.fillStyle=fadeL;ctx.fillRect(0,y-2,fadeW,EH+10);
+
+    const fadeR=ctx.createLinearGradient(w-fadeW,0,w,0);
+    fadeR.addColorStop(0,"rgba(4,1,12,0)");
+    fadeR.addColorStop(1,"rgba(4,1,12,1)");
+    ctx.fillStyle=fadeR;ctx.fillRect(w-fadeW,y-2,fadeW,EH+10);
+
     ctx.restore();
   }
+
+    #moduleStrip(ctx,w,h){
+    const mods=Object.values(MODULES);
+    const EW=72,EH=44,gap=10;
+    const totalW=mods.length*(EW+gap);
+    const speed=28; // px per second — increase to scroll faster
+    const offset=((this.#t*speed)%totalW);
+    const y=h*0.56;
+
+    ctx.save();
+    ctx.textAlign="center";
+    ctx.font="bold 9px 'Courier New'";
+    ctx.fillStyle=CS.GREY;ctx.shadowBlur=0;
+    ctx.fillText("— FALCON MODULES —",w/2,y-8);
+
+    ctx.beginPath();ctx.rect(0,y-2,w,EH+10);ctx.clip();
+
+    const copies=Math.ceil(w/totalW)+2;
+    for(let copy=0;copy<copies;copy++){
+      mods.forEach((m,i)=>{
+        const x=(copy*totalW)+i*(EW+gap)-offset+(w-totalW)/2;
+        if(x+EW<-10||x>w+10) return;
+
+        const isCenter=Math.abs(x+EW/2-w/2)<EW*0.8;
+        const scale=isCenter?1.08:0.92;
+        const alpha=isCenter?1:0.6;
+        const pulse=0.7+Math.sin(performance.now()*0.002+i*0.7)*0.3;
+
+        ctx.save();
+        ctx.globalAlpha=alpha;
+        ctx.translate(x+EW/2,y+EH/2);
+        ctx.scale(scale,scale);
+        ctx.translate(-(x+EW/2),-(y+EH/2));
+
+        ctx.fillStyle="rgba(4,1,18,0.82)";
+        ctx.strokeStyle=m.color;ctx.lineWidth=isCenter?2:1;
+        ctx.shadowColor=m.color;ctx.shadowBlur=isCenter?14:5*pulse;
+        ctx.beginPath();ctx.roundRect(x,y,EW,EH,4);
+        ctx.fill();ctx.stroke();
+
+        ctx.font="17px serif";ctx.textAlign="center";ctx.shadowBlur=0;
+        ctx.fillText(m.emoji,x+EW/2,y+22);
+
+        ctx.font=`bold ${m.shortName.length>8?6:7}px 'Courier New'`;
+        ctx.fillStyle=m.color;
+        ctx.shadowColor=isCenter?m.color:"transparent";
+        ctx.shadowBlur=isCenter?8:0;
+        ctx.fillText(m.shortName,x+EW/2,y+36);
+
+        // Center card shows tagline
+        if(isCenter){
+          ctx.font="6px 'Courier New'";
+          ctx.fillStyle=CS.GREY;ctx.shadowBlur=0;
+          const tag=m.tagline.length>22?m.tagline.slice(0,20)+"…":m.tagline;
+          ctx.fillText(tag,x+EW/2,y+EH+10);
+        }
+
+        ctx.restore();
+      });
+    }
+
+    // Fade edges
+    const fadeW=55;
+    const fadeL=ctx.createLinearGradient(0,0,fadeW,0);
+    fadeL.addColorStop(0,"rgba(4,1,12,1)");
+    fadeL.addColorStop(1,"rgba(4,1,12,0)");
+    ctx.fillStyle=fadeL;ctx.fillRect(0,y-2,fadeW,EH+14);
+
+    const fadeR=ctx.createLinearGradient(w-fadeW,0,w,0);
+    fadeR.addColorStop(0,"rgba(4,1,12,0)");
+    fadeR.addColorStop(1,"rgba(4,1,12,1)");
+    ctx.fillStyle=fadeR;ctx.fillRect(w-fadeW,y-2,fadeW,EH+14);
+
+    ctx.restore();
+  }
+
   #controls(ctx,w,h){
     const rows=[["← →","MOVE"],["SPACE","FIRE / SKIP"],["MODULES","AUTO-COLLECT"]];
     const y=h*0.71;
