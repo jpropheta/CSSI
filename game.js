@@ -1531,28 +1531,185 @@ class CharlotteAI{
 }
 
 // ─── BLOCK ───────────────────────────────────────────────────────
+// ─── LEGACY TOOL BLOCKS ──────────────────────────────────────────
+const LEGACY_TOOLS = [
+  {
+    name    : "FIREWALL",
+    shortMsg: "PERIMETER BREACHED",
+    color   : "#00AAFF",
+    failMsg : "Firewalls block ports — not identity abuse or encrypted C2 traffic.",
+  },
+  {
+    name    : "WAF",
+    shortMsg: "APP LAYER BYPASSED",
+    color   : "#AA00FF",
+    failMsg : "WAFs stop known web exploits — not zero-days or supply chain attacks.",
+  },
+  {
+    name    : "SASE",
+    shortMsg: "EDGE COMPROMISED",
+    color   : "#00FFD0",
+    failMsg : "SASE secures the edge — not lateral movement inside the perimeter.",
+  },
+  {
+    name    : "IPS",
+    shortMsg: "SIGNATURE EVADED",
+    color   : "#FF6A00",
+    failMsg : "IPS catches known signatures — not fileless or living-off-the-land attacks.",
+  },
+  {
+    name    : "ANTIVIRUS",
+    shortMsg: "PAYLOAD UNKNOWN",
+    color   : "#FFE600",
+    failMsg : "Legacy AV needs signatures — AI-generated malware has none.",
+  },
+  {
+    name    : "IAM",
+    shortMsg: "CREDENTIAL STOLEN",
+    color   : "#FF1744",
+    failMsg : "IAM manages access — it cannot detect when valid credentials are stolen.",
+  },
+];
+
 class Block{
-  constructor(x,y){
+  constructor(x,y,toolIndex){
     this.x=x;this.y=y;this.w=CFG.BLK_W;this.h=CFG.BLK_H;
     this.strength=CFG.BLK_STRENGTH;
+    this.tool=LEGACY_TOOLS[toolIndex%LEGACY_TOOLS.length];
+    this.flashT=0;        // hit flash timer
+    this.destroyT=-1;     // destroy animation timer (-1 = not destroyed)
+    this.particles=[];    // mini debris particles
+    this.wasJustDestroyed=false;
   }
-  hit(){this.strength=Math.max(0,this.strength-1);}
-  get alive(){return this.strength>0;}
-  draw(ctx){
-    if(!this.alive)return;
-    const t=this.strength/CFG.BLK_STRENGTH;
-    ctx.save();
-    ctx.fillStyle=`hsla(${190+t*40},90%,${40+t*20}%,${0.35+t*0.5})`;
-    ctx.shadowColor=`hsla(${190+t*40},90%,65%,0.9)`;ctx.shadowBlur=7;
-    ctx.fillRect(this.x,this.y,this.w,this.h);
-    ctx.strokeStyle=`rgba(0,200,255,${t*0.25})`;ctx.lineWidth=0.5;
-    for(let i=8;i<this.w;i+=8){
-      ctx.beginPath();ctx.moveTo(this.x+i,this.y);
-      ctx.lineTo(this.x+i,this.y+this.h);ctx.stroke();
+
+  hit(){
+    this.strength=Math.max(0,this.strength-1);
+    this.flashT=0.18;
+    if(this.strength===0){
+      this.destroyT=0;
+      this.wasJustDestroyed=true;
+      this.#spawnDebris();
     }
+  }
+
+  #spawnDebris(){
+    for(let i=0;i<12;i++){
+      const ang=Math.random()*Math.PI*2;
+      const spd=20+Math.random()*60;
+      this.particles.push({
+        x:this.x+this.w/2,y:this.y+this.h/2,
+        vx:Math.cos(ang)*spd,vy:Math.sin(ang)*spd,
+        life:0,maxLife:0.6+Math.random()*0.4,
+        size:1+Math.random()*3,
+      });
+    }
+  }
+
+  get alive(){ return this.strength>0; }
+
+  update(dt){
+    if(this.flashT>0) this.flashT=Math.max(0,this.flashT-dt);
+    if(this.destroyT>=0) this.destroyT+=dt;
+    for(let i=this.particles.length-1;i>=0;i--){
+      const p=this.particles[i];
+      p.life+=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=40*dt;
+      if(p.life>p.maxLife)this.particles.splice(i,1);
+    }
+  }
+
+  draw(ctx){
+    // Draw debris particles even after destroyed
+    for(const p of this.particles){
+      const t=1-p.life/p.maxLife;
+      ctx.globalAlpha=t*0.8;
+      ctx.fillStyle=this.tool.color;
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.size*t,0,Math.PI*2);
+      ctx.fill();
+    }
+    ctx.globalAlpha=1;
+
+    if(!this.alive) return;
+
+    const t=this.strength/CFG.BLK_STRENGTH;
+    const now=performance.now();
+
+    ctx.save();
+
+    // Hit flash
+    if(this.flashT>0){
+      ctx.globalAlpha=0.5+this.flashT*2;
+    }
+
+    // Block body
+    ctx.fillStyle=`rgba(4,1,18,${0.7+t*0.2})`;
+    ctx.strokeStyle=this.tool.color;
+    ctx.lineWidth=1.5;
+    ctx.shadowColor=this.tool.color;
+    ctx.shadowBlur=6+Math.sin(now*0.003+this.x)*3;
+    ctx.beginPath();
+    ctx.roundRect(this.x,this.y,this.w,this.h,3);
+    ctx.fill();ctx.stroke();
+
+    // Health fill bar along bottom
+    ctx.fillStyle=this.tool.color;
+    ctx.globalAlpha=(0.25+t*0.35);
+    ctx.shadowBlur=0;
+    ctx.fillRect(this.x+1,this.y+this.h-3,
+      (this.w-2)*t,2);
+    ctx.globalAlpha=1;
+
+    // Tool name — sized to fit
+    const nameLen=this.tool.name.length;
+    const fontSize=nameLen>7?7:nameLen>5?8:9;
+    ctx.font=`bold ${fontSize}px 'Courier New'`;
+    ctx.textAlign="center";
+    ctx.fillStyle=this.tool.color;
+    ctx.shadowColor=this.tool.color;
+    ctx.shadowBlur=t>0.5?8:4;
+    ctx.fillText(this.tool.name,this.x+this.w/2,this.y+this.h*0.62);
+
+    // Damage cracks overlay
+    if(this.strength<CFG.BLK_STRENGTH){
+      ctx.globalAlpha=(1-t)*0.7;
+      ctx.strokeStyle=`rgba(255,255,255,${(1-t)*0.6})`;
+      ctx.lineWidth=0.8;
+      ctx.shadowBlur=0;
+      // Crack lines — deterministic based on position
+      const seed=this.x+this.y;
+      const cracks=CFG.BLK_STRENGTH-this.strength;
+      for(let c=0;c<cracks;c++){
+        const sx=this.x+(((seed*3+c*7)%10)/10)*this.w;
+        const sy=this.y+(((seed*5+c*3)%8)/8)*this.h;
+        ctx.beginPath();
+        ctx.moveTo(sx,sy);
+        ctx.lineTo(sx+(((seed+c)%5)-2)*8, sy+(((seed*2+c)%5)-1)*6);
+        ctx.stroke();
+      }
+      ctx.globalAlpha=1;
+    }
+
+    // Critical state pulse — last hit point
+    if(this.strength===1){
+      const warn=Math.sin(now*0.012)*0.4+0.6;
+      ctx.strokeStyle=`rgba(255,50,50,${warn*0.8})`;
+      ctx.lineWidth=2;
+      ctx.shadowColor="#FF1744";ctx.shadowBlur=10*warn;
+      ctx.beginPath();
+      ctx.roundRect(this.x-1,this.y-1,this.w+2,this.h+2,3);
+      ctx.stroke();
+    }
+
+    ctx.shadowBlur=0;
     ctx.restore();
   }
+
+  // Returns the fail message for floating text on destruction
+  getFailMsg(){ return this.tool.failMsg; }
+  getShortMsg(){ return this.tool.shortMsg; }
+  getColor(){ return this.tool.color; }
 }
+
 
 // ─── POWER-UP ────────────────────────────────────────────────────
 class PowerUp{
@@ -2238,6 +2395,7 @@ class Game{
     this.#handleInput(dt);
     if(this.#pangeaT<=0){this.#moveAttackers(dt);this.#doShoot();}
     else this.#pangeaT=Math.max(0,this.#pangeaT-dt);
+    this.#blocks.forEach(b=>b.update(dt));
     this.#movePBullets(dt);this.#moveABullets(dt);
     this.#charlotte.update(dt);
     this.#updatePowerUps(dt);this.#updateUFO(dt);
@@ -2251,6 +2409,7 @@ class Game{
     this.#handleInput(dt);
     if(this.#pangeaT<=0)this.#boss.update(dt,this.#aBullets,this.#bltPool);
     else this.#pangeaT=Math.max(0,this.#pangeaT-dt);
+    this.#blocks.forEach(b=>b.update(dt));
     this.#movePBullets(dt);this.#moveABullets(dt);
     this.#charlotte.update(dt);
     this.#updatePowerUps(dt);this.#updateUFO(dt);
@@ -2346,10 +2505,22 @@ class Game{
       // vs blocks
       for(const bl of this.#blocks){
         if(bl.alive&&this.#ov(b.x,b.y,b.w,b.h,bl.x,bl.y,bl.w,bl.h)){
-          bl.hit();this.#bltPool.release(b);this.#pBullets.splice(i,1);
+          bl.hit();
+          if(!bl.alive){
+            this.#floats.spawn(
+              bl.x+bl.w/2, bl.y-8,
+              `⚠ ${bl.getShortMsg()}`,
+              bl.getColor(), 11);
+            this.#floats.spawn(
+              bl.x+bl.w/2, bl.y-22,
+              bl.getFailMsg().slice(0,42),
+              CS.GREY, 9);
+          }
+          this.#bltPool.release(b);this.#pBullets.splice(i,1);
           this.#canShoot=true;break;
         }
       }
+
     }
   }
 
@@ -2375,9 +2546,23 @@ class Game{
       let bh=false;
       for(const bl of this.#blocks){
         if(bl.alive&&this.#ov(b.x,b.y,b.w,b.h,bl.x,bl.y,bl.w,bl.h)){
-          bl.hit();this.#bltPool.release(b);this.#aBullets.splice(i,1);bh=true;break;
+          bl.hit();
+          if(!bl.alive){
+            this.#floats.spawn(
+              bl.x+bl.w/2, bl.y-8,
+              `⚠ ${bl.getShortMsg()}`,
+              bl.getColor(), 11);
+            this.#floats.spawn(
+              bl.x+bl.w/2, bl.y-22,
+              bl.getFailMsg().slice(0,42),
+              CS.GREY, 9);
+          }
+          this.#bltPool.release(b);this.#aBullets.splice(i,1);
+          bh=true;break;
+
         }
       }
+
       if(bh)continue;
       if(this.#ov(b.x,b.y,b.w,b.h,this.#px,this.#py,CFG.PLR_W,CFG.PLR_H)){
         this.#bltPool.release(b);this.#aBullets.splice(i,1);
@@ -2695,8 +2880,9 @@ class Game{
     const total=CFG.BLK_COLS*(CFG.BLK_W+20)-20;
     const sx=(canvas.width-total)/2;
     for(let c=0;c<CFG.BLK_COLS;c++)
-      this.#blocks.push(new Block(sx+c*(CFG.BLK_W+20),canvas.height-108));
+      this.#blocks.push(new Block(sx+c*(CFG.BLK_W+20),canvas.height-108,c));
   }
+
 
   // ── RENDER ──────────────────────────────────────────────────────
   #render(){
