@@ -85,6 +85,13 @@ const MODULE_POOL = Object.values(MODULES);
 // These modules wipe enemies instantly and must not appear in waves 0–1
 const NUCLEAR_MODULE_IDS = new Set(["OVERWATCH","COMPLETE","CLOUD","CHARLOTTE"]);
 
+// ─── KONAMI CODE ─────────────────────────────────────────────────
+const KONAMI_SEQ = [
+  "ArrowUp","ArrowUp","ArrowDown","ArrowDown",
+  "ArrowLeft","ArrowRight","ArrowLeft","ArrowRight","b","a"
+];
+
+
 // ─── SOC COMMS ───────────────────────────────────────────────────
 const SOC_COMMS = {
   fancy_bear:[
@@ -2153,6 +2160,208 @@ class Game{
   #phaseOrder=[];
   #waveIdx   =0;
 
+    // ─── KONAMI SETUP ──────────────────────────────────────────────
+  #setupKonami(){
+    window.addEventListener("keydown", e => {
+      this.#konamiBuffer.push(e.key);
+      if(this.#konamiBuffer.length > KONAMI_SEQ.length)
+        this.#konamiBuffer.shift();
+      if(
+        this.#konamiBuffer.length === KONAMI_SEQ.length &&
+        this.#konamiBuffer.every((k,i) => k === KONAMI_SEQ[i])
+      ){
+        this.#konamiBuffer = [];
+        this.#activateKonami();
+      }
+    });
+  }
+
+  // ─── KONAMI ACTIVATION ─────────────────────────────────────────
+  #activateKonami(){
+    // Only fire when actually playing, and only once per wave
+    if(
+      this.#konamiUsed ||
+      (this.#state !== STATE.PLAYING && this.#state !== STATE.BOSS)
+    ) return;
+    this.#konamiUsed  = true;
+    this.#konamiPhase = 1;
+    this.#konamiT     = 0;
+  }
+
+  // ─── KONAMI UPDATE ─────────────────────────────────────────────
+  #updateKonami(dt){
+    if(this.#konamiPhase === 0) return;
+    this.#konamiT += dt;
+
+    // Phase 1 — show radio message, freeze bullets (1.8 s)
+    if(this.#konamiPhase === 1){
+      // Clear enemy bullets immediately on entry
+      if(this.#konamiT < dt * 2){
+        this.#aBullets.forEach(b => this.#bltPool.release(b));
+        this.#aBullets = [];
+        this.#fx.flash(255,215,0,0.5);
+        this.#audio.bonusModule();
+      }
+      if(this.#konamiT >= 1.8){ this.#konamiPhase = 2; this.#konamiT = 0; }
+    }
+
+    // Phase 2 — nuke all adversaries with staggered explosions (1.5 s)
+    if(this.#konamiPhase === 2){
+      if(this.#konamiT < dt * 2){
+        // Boss gets nuked too
+        if(this.#boss?.alive){
+          this.#boss.hp = 0;
+          this.#boss.alive = false;
+          this.#parts.bossExplode(
+            this.#boss.x + this.#boss.w/2,
+            this.#boss.y + this.#boss.h/2
+          );
+          const bpts = CFG.SCORE_BOSS * this.#combo;
+          this.#addScore(bpts,
+            this.#boss.x + this.#boss.w/2, this.#boss.y,
+            `💀 MARQUINHOS +${bpts}`);
+        }
+        // Nuke all grid enemies
+        let delay = 0;
+        for(let c = 0; c < CFG.COLS; c++)
+          for(let r = 0; r < CFG.ROWS; r++){
+            const a = this.#attackers[c]?.[r];
+            if(!a?.alive) continue;
+            const ac = a, rc = r, tok = this.#cloudCancelToken;
+            setTimeout(() => {
+              if(this.#cloudCancelToken !== tok) return;
+              if(!ac.alive) return;
+              ac.alive = false;
+              this.#parts.bossExplode(ac.x + CFG.ATK_W/2, ac.y + CFG.ATK_H/2);
+              const pts = CFG.SCORE_ROW[rc] * this.#combo * 3;
+              this.#addScore(pts, ac.x + CFG.ATK_W/2, ac.y,
+                `💀 NUKED +${pts}`);
+              this.#audio.boom();
+            }, delay);
+            delay += 60;
+          }
+        // Nuke side enemies
+        this.#sideEnemies.forEach((e,i) => {
+          const ec = e, tok = this.#cloudCancelToken;
+          setTimeout(() => {
+            if(this.#cloudCancelToken !== tok) return;
+            if(!ec.alive) return;
+            ec.alive = false;
+            this.#parts.bossExplode(ec.x + CFG.ATK_W/2, ec.y + CFG.ATK_H/2);
+          }, i * 80);
+        });
+        this.#fx.shake(1.0);
+        this.#fx.chroma(0.09);
+        this.#fx.flash(255,215,0,0.8);
+      }
+      if(this.#konamiT >= 1.5){ this.#konamiPhase = 3; this.#konamiT = 0; }
+    }
+
+    // Phase 3 — show FATALITY (2.6 s)
+    if(this.#konamiPhase === 3){
+      if(this.#konamiT >= 2.6){ this.#konamiPhase = 4; this.#konamiT = 0; }
+    }
+
+    // Phase 4 — cooldown, then let normal end-wave logic fire (0.6 s)
+    if(this.#konamiPhase === 4){
+      if(this.#konamiT >= 0.6){ this.#konamiPhase = 0; }
+    }
+  }
+
+  // ─── KONAMI DRAW ───────────────────────────────────────────────
+  #drawKonami(w, h){
+    if(this.#konamiPhase === 0) return;
+    const now = performance.now();
+
+    // ── Radio override banner (phase 1 + 2) ──────────────────────
+    if(this.#konamiPhase <= 2){
+      const barW = 420, barH = 30,
+            bx   = (w - barW)/2, by = h - 46;
+      const blink = Math.sin(now * 0.018) > 0;
+      ctx.save();
+      ctx.fillStyle = "rgba(4,1,18,0.94)";
+      ctx.strokeStyle = CS.GOLD;
+      ctx.lineWidth   = 2;
+      ctx.shadowColor = CS.GOLD;
+      ctx.shadowBlur  = 14;
+      ctx.beginPath(); ctx.roundRect(bx, by, barW, barH, 5);
+      ctx.fill(); ctx.stroke();
+      if(blink){
+        ctx.fillStyle = CS.GOLD; ctx.shadowBlur = 0;
+        ctx.beginPath();
+        ctx.arc(bx + 13, by + 15, 5, 0, Math.PI*2);
+        ctx.fill();
+      }
+      ctx.font      = "bold 10px 'Courier New'";
+      ctx.textAlign = "left";
+      ctx.fillStyle = CS.GOLD;
+      ctx.shadowColor = CS.GOLD; ctx.shadowBlur = 6;
+      ctx.fillText("SOC ▶", bx + 24, by + 19);
+      ctx.font      = "bold 11px 'Courier New'";
+      ctx.fillStyle = CS.WHITE; ctx.shadowBlur = 0;
+      ctx.fillText("Let's call Marquinhos! 🇧🇷", bx + 80, by + 19);
+      ctx.restore();
+    }
+
+    // ── FATALITY overlay (phase 3) ────────────────────────────────
+    if(this.#konamiPhase === 3){
+      const t   = this.#konamiT;
+      const dur = 2.6;
+      // fade in 0.25s, hold, fade out 0.4s
+      const fi  = Math.min(1, t / 0.25);
+      const fo  = t > dur - 0.4 ? Math.max(0, 1 - (t-(dur-0.4))/0.4) : 1;
+      const alpha = fi * fo;
+
+      ctx.save();
+      // Dark vignette
+      ctx.globalAlpha = alpha * 0.72;
+      ctx.fillStyle   = "rgba(4,1,12,0.88)";
+      ctx.fillRect(0, 0, w, h);
+
+      // Blood-red horizontal bars
+      ctx.globalAlpha = alpha * 0.9;
+      ctx.fillStyle   = CS.RED;
+      ctx.fillRect(0, h*0.32, w, 6);
+      ctx.fillRect(0, h*0.70, w, 6);
+
+      // Glitch offset
+      const glitch = Math.sin(now * 0.04) * 4;
+
+      // Shadow / echo text
+      ctx.globalAlpha = alpha * 0.25;
+      ctx.font        = "bold 96px 'Courier New'";
+      ctx.textAlign   = "center";
+      ctx.fillStyle   = CS.RED;
+      ctx.fillText("FATALITY!", w/2 + glitch + 5, h/2 + 5);
+
+      // Main text — animated colour cycle
+      const hue     = (now * 0.1) % 360;
+      ctx.globalAlpha = alpha;
+      ctx.font        = "bold 96px 'Courier New'";
+      ctx.fillStyle   = `hsl(${hue},100%,62%)`;
+      ctx.shadowColor = CS.RED;
+      ctx.shadowBlur  = 48 + Math.sin(now * 0.008) * 20;
+      ctx.fillText("FATALITY!", w/2 + glitch, h/2);
+
+      // Sub-text
+      ctx.font        = "bold 15px 'Courier New'";
+      ctx.fillStyle   = CS.GOLD;
+      ctx.shadowColor = CS.GOLD;
+      ctx.shadowBlur  = 12;
+      ctx.fillText("MARQUINHOS CALLED — ADVERSARIES ELIMINATED", w/2, h/2 + 52);
+
+      // Score multiplier note
+      ctx.font        = "bold 11px 'Courier New'";
+      ctx.fillStyle   = CS.GREEN;
+      ctx.shadowColor = CS.GREEN;
+      ctx.shadowBlur  = 8;
+      ctx.fillText("🦅  3x SCORE BONUS APPLIED TO ALL KILLS",w/2, h/2 + 72);
+
+      ctx.restore();
+    }
+  }
+
+
   #score     =0;#waveScore=0;#hi=0;#lives=CFG.PLR_LIVES;
   #hitPause  =0;#lastTime=0;
 
@@ -2183,6 +2392,13 @@ class Game{
   // ── bonus module timer ─────────────────────────────────────────
   #bonusDropTimer=0;
   #bonusDropInterval=0; // randomised each wave
+  
+  // ── Konami easter egg ──────────────────────────────────────────
+  #konamiBuffer  = [];
+  #konamiPhase   = 0;   // 0=idle 1=radio 2=nuke 3=fatality 4=cooldown
+  #konamiT       = 0;
+  #konamiUsed    = false; // one activation per wave
+
 
   async init(){
     this.#hi=+localStorage.getItem("cs_hi")||0;
@@ -2201,6 +2417,7 @@ class Game{
     await this.#assets.loadAll(manifest,(done)=>{ loadedCount=done; });
     loadingDone=true;
     this.#lastTime=performance.now();
+    this.#setupKonami();
     requestAnimationFrame(this.#loop);
   }
 
@@ -2313,13 +2530,15 @@ class Game{
     this.#checkImpostorOverlap();
     this.#updateUFO(dt);
     this.#tickCombo(dt);this.#tickMods(dt);
+    this.#updateKonami(dt);
     this.#blocks.forEach(b=>b.update(dt));
     this.#checkEnd();
   }
 
   #updateBoss(dt){
     if(this.#hitPause>0){this.#hitPause-=dt;return;}
-    if(!this.#boss?.alive){this.#endBoss();return;}
+    // Don't trigger boss-end while Konami nuke is still animating
+    if(!this.#boss?.alive && this.#konamiPhase === 0){this.#endBoss();return;}
     this.#socFeed.update(dt);
     this.#handleInput(dt);
     this.#tickGrace(dt);
@@ -2336,6 +2555,7 @@ class Game{
     this.#updateCorruptedBlocks(dt);
     this.#updateUFO(dt);
     this.#tickCombo(dt);this.#tickMods(dt);
+    this.#updateKonami(dt);
     this.#blocks.forEach(b=>b.update(dt));
     if(this.#lives<=0)this.#gameOver();
   }
@@ -2450,6 +2670,7 @@ class Game{
 
     // Grace period: full duration at wave start
     this.#waveGraceT = CFG.WAVE_GRACE_S;
+    this.#konamiUsed = false;
 
     // Bonus drop setup
     this.#bonusDropTimer    = 0;
@@ -2541,7 +2762,10 @@ class Game{
   }
 
   #checkEnd(){
+    // Don't end the wave while the Konami sequence is still playing out
+    if(this.#konamiPhase > 0) return;
     if(this.#lives<=0){this.#gameOver();return;}
+
     if(this.#countAlive()===0&&this.#sideEnemies.length===0){
       this.#audio.levelUp();this.#fx.startWarp(canvas.width,canvas.height);
       this.#fx.flash(0,229,255,0.35);this.#socFeed.stop();
@@ -3217,6 +3441,7 @@ class Game{
     this.#hud.draw(ctx,W);
     this.#notify.draw(ctx,W);
     this.#socFeed.draw(ctx,W,H);
+    this.#drawKonami(W,H);
   }
 
   #drawAttackers(){
