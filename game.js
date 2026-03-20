@@ -9,8 +9,18 @@ const canvas = document.getElementById("gameCanvas");
 const ctx    = canvas.getContext("2d", { alpha: false });
 canvas.width  = 800;
 canvas.height = 600;
-canvas.style.width  = canvas.width  + "px";
-canvas.style.height = canvas.height + "px";
+
+function resizeCanvas(){
+  const scaleX = window.innerWidth  / 800;
+  const scaleY = window.innerHeight / 600;
+  const scale  = Math.min(scaleX, scaleY) * 0.97; // 0.97 = small breathing margin
+  canvas.style.width  = Math.floor(800 * scale) + "px";
+  canvas.style.height = Math.floor(600 * scale) + "px";
+}
+
+resizeCanvas();
+window.addEventListener("resize", resizeCanvas);
+
 
 // ─── PALETTE ─────────────────────────────────────────────────────
 const CS = Object.freeze({
@@ -853,6 +863,7 @@ class AudioEngine{
   stopBGM(){this.#bgm=false;}
 }
 
+
 // ─── SOC FEED ────────────────────────────────────────────────────
 class SOCFeed{
   #lines=[];#current=null;#t=0;#showT=5.5;#idx=0;#active=false;
@@ -1294,12 +1305,16 @@ class Input{
   #down=new Set();#pressed=new Set();
   constructor(){
     window.addEventListener("keydown",e=>{
+      if(e.target.tagName==="INPUT"||e.target.tagName==="TEXTAREA"||e.target.isContentEditable)return;
       if(!this.#down.has(e.key))this.#pressed.add(e.key);
       this.#down.add(e.key);
       if([" ","ArrowLeft","ArrowRight","ArrowUp","ArrowDown"].includes(e.key))
         e.preventDefault();
     });
-    window.addEventListener("keyup",e=>this.#down.delete(e.key));
+    window.addEventListener("keyup",e=>{
+      if(e.target.tagName==="INPUT"||e.target.tagName==="TEXTAREA"||e.target.isContentEditable)return;
+      this.#down.delete(e.key);
+    });
   }
   isDown(k){return this.#down.has(k);}
   consume(k){const had=this.#pressed.has(k)||this.#down.has(k);this.#pressed.delete(k);return had;}
@@ -2134,6 +2149,7 @@ class TitleScreen{
 //  MAIN GAME CLASS
 // ═══════════════════════════════════════════════════════════════════
 class Game{
+  #maxCombo  = 1;
   #assets    =new AssetManager();
   #audio     =new AudioEngine();
   #parts     =new Particles();
@@ -2402,6 +2418,18 @@ class Game{
 
   async init(){
     this.#hi=+localStorage.getItem("cs_hi")||0;
+    FalconRanking.init({                          // ← add block
+        gameName:  'Falcon Arcade Defense',
+        eventName: 'RSA Conference 2026',
+        onAttractClose: ()=>{ /* no-op */ },
+        onFormClose: ()=>{
+            if(this.#state===STATE.TITLE)
+                FalconRanking.startIdleWatch();
+        },
+    });
+
+
+
     const manifest=[
       {key:"player",src:"space.png"},
       ...Array.from({length:CFG.IMAGE_COUNT},(_,i)=>({key:`act${i}`,src:`act${i}.png`})),
@@ -2418,6 +2446,7 @@ class Game{
     loadingDone=true;
     this.#lastTime=performance.now();
     this.#setupKonami();
+    FalconRanking.startIdleWatch();
     requestAnimationFrame(this.#loop);
   }
 
@@ -2472,7 +2501,7 @@ class Game{
         this.#modChoice.update(dt,this.#input);
         if(this.#modChoice.confirmed){
           const chosen=this.#modChoice.chosenModule;
-          if(chosen){this.#collectMod(chosen);this.#audio.moduleUp();}
+          if(chosen){this.#collectMod(chosen);}  // ← moduleUp() already inside #collectMod
           this.#state=this.#bannerBoss?STATE.BOSS_WARNING:STATE.WAVE_BANNER;
           this.#bannerT=0;
         }
@@ -2624,7 +2653,9 @@ class Game{
   }
 
   #startGame(){
+    FalconRanking.stopIdleWatch();
     this.#score=0;this.#lives=CFG.PLR_LIVES;this.#combo=1;this.#comboT=0;
+    this.#maxCombo=1; 
     this.#waveIdx=0;this.#dir=1;
     this.#mods={PREVENT:0,INSIGHT:0,IDENTITY:0,PANGEA:0,FEM:0,COMPLETE:0,CHARLOTTE_AIM:0,CLOUD:0};
     this.#pangeaT=0;this.#deathCtx=null;
@@ -2633,7 +2664,19 @@ class Game{
   }
 
   #nextWave(){
-    if(this.#waveIdx>=PHASES.length-1){this.#state=STATE.YOU_WIN;this.#saveHi();return;}
+    if(this.#waveIdx>=PHASES.length-1){
+      this.#state=STATE.YOU_WIN;
+      this.#saveHi();
+      FalconRanking.onGameEnd({
+        score:     this.#score,
+        phase:     'ALL 10 WAVES COMPLETE',
+        adversary: 'ALL ADVERSARIES',
+        grade:     this.#getGrade(),
+        maxStreak: this.#maxCombo,
+        lives:     Math.max(0, this.#lives),
+      });
+      return;
+    }
     this.#waveIdx=Math.min(this.#waveIdx+1,PHASES.length-1);
     this.#dir=1;this.#audio.stopBGM();this.#audio.startBGM();this.#beginWave();
   }
@@ -2737,6 +2780,7 @@ class Game{
     this.#sideEnemies=[];this.#ufo=null;this.#boss=null;
     this.#currentPhase=null;this.#deathCtx=null;
     this.#canShoot=true;this.#input.flushAll();
+    FalconRanking.startIdleWatch();
   }
 
   #saveHi(){
@@ -2745,19 +2789,45 @@ class Game{
       try{localStorage.setItem("cs_hi",this.#hi);}catch(_){}
     }
   }
+#getGrade(){
+    return this.#score>5000?'ELITE ANALYST':
+           this.#score>2500?'SENIOR ANALYST':
+           this.#score>1000?'ANALYST':'JUNIOR ANALYST';
+  }
 
   #gameOver(){
+    if(this.#state===STATE.GAME_OVER)return;
     this.#audio.stopBGM();this.#fx.flash(224,0,60,0.9);this.#fx.shake(1);
     this.#parts.bossExplode(canvas.width/2,canvas.height/2);
     this.#socFeed.stop();
     this.#deathCtx=getDeathContext(this.#currentPhase,this.#modulesCollected);
     this.#state=STATE.GAME_OVER;this.#saveHi();
+    FalconRanking.onGameEnd({
+      score:     this.#score,
+      phase:     `Wave ${this.#waveIdx+1} — ${this.#currentPhase?.name??"Unknown"}`,
+      adversary: this.#currentPhase?.name ?? '—',
+      grade:     this.#getGrade(),
+      maxStreak: this.#maxCombo,
+      lives:     0,
+    });
   }
 
   #endBoss(){
     this.#audio.levelUp();this.#fx.startWarp(canvas.width,canvas.height);
     this.#fx.flash(224,0,60,0.65);this.#socFeed.stop();
-    if(this.#waveIdx>=PHASES.length-1){this.#state=STATE.YOU_WIN;this.#saveHi();return;}
+    if(this.#waveIdx>=PHASES.length-1){
+      this.#state=STATE.YOU_WIN;
+      this.#saveHi();
+      FalconRanking.onGameEnd({
+        score:     this.#score,
+        phase:     'ALL 10 WAVES COMPLETE',
+        adversary: 'ALL ADVERSARIES',
+        grade:     this.#getGrade(),
+        maxStreak: this.#maxCombo,
+        lives:     Math.max(0, this.#lives),
+      });
+      return;
+    }
     this.#state=STATE.INCIDENT_REPORT;this.#bannerT=0;
   }
 
@@ -3224,7 +3294,11 @@ class Game{
     }
   }
 
-  #bumpCombo(){this.#combo=Math.min(8,this.#combo+1);this.#comboT=CFG.COMBO_WINDOW/1000;}
+  #bumpCombo(){
+    this.#combo=Math.min(8,this.#combo+1);
+    this.#comboT=CFG.COMBO_WINDOW/1000;
+    if(this.#combo>this.#maxCombo) this.#maxCombo=this.#combo;
+  }
   #tickCombo(dt){if(this.#combo>1){this.#comboT-=dt;if(this.#comboT<=0)this.#combo=1;}}
   #tickMods(dt){
     for(const k of["PREVENT","INSIGHT","IDENTITY","FEM","COMPLETE","CHARLOTTE_AIM","CLOUD"])

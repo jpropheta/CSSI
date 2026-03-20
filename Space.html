@@ -2,21 +2,29 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>FALCON ARCADE 0.2</title>
-    <style>
-        body {
-            margin: 0;
-            overflow: hidden;
-        }
-        canvas {
-            background: black;
-            display: block;
-            margin: 0 auto;
-        }
-    </style>
+    <title>CS Invaders 0.1</title>
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    width: 100%;
+    height: 100%;
+    background: #04010C;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  #gameCanvas {
+    display: block;
+    image-rendering: pixelated; /* keeps pixels sharp when scaled up */
+  }
+</style>
+
 </head>
 <body>
     <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <script src="falcon-ranking.js"></script>
     <script src="game.js"></script>
 </body>
 </html>
